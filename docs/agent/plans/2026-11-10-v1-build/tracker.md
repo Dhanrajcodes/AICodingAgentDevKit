@@ -18,6 +18,6 @@ Status: `todo`, `doing`, `done`, `blocked (reason)`, `dropped (reason)`
 | T-10 | INSTALL.md | done | 2fdf7f7 |
 | T-11 | CI | done | 2fdf7f7 |
 | T-15 | Security rulebook | done | 51b65f1 |
-| T-12 | Public docs | done | (this) |
-| T-13 | Example workspace | doing | |
-| T-14 | Final verification and release | todo | |
+| T-12 | Public docs | done | 1cee548 |
+| T-13 | Example workspace | done | (this) |
+| T-14 | Final verification and release | doing | |

@@ -56,4 +56,16 @@ for f in "$ROOT"/install.ps1 "$ROOT"/kit/.agentkit/doctor.ps1 "$ROOT"/tests/*.ps
   [ "$n" -eq 0 ] && ok || bad "$(basename "$f") has $n non-ASCII bytes"
 done
 
+CASE=example-workspace
+EX="$ROOT/examples/sample-workspace"
+a=$(sed -n '/agentkit:start/,/agentkit:end/p' "$EX/AGENTS.md"); b=$(sed -n '/agentkit:start/,/agentkit:end/p' "$K/templates/AGENTS.md")
+[ "$a" = "$b" ] && ok || bad "example kit block differs from templates/AGENTS.md"
+w="$TMP_ROOT/example copy"; rm -rf "$w"; mkdir -p "$TMP_ROOT"; cp -R "$EX" "$w"
+out=$(sh "$ROOT/install.sh" "$w" 2>&1)
+assert_contains "$out" "kept docs/agent/STATUS.md" "example memory kept"
+assert_contains "$out" "updated kit block in AGENTS.md" "example block refreshed"
+assert_same "$w/docs/agent/STATUS.md" "$EX/docs/agent/STATUS.md"
+dout=$(sh "$w/.agentkit/doctor.sh" "$w" 2>&1); dcode=$?
+assert_eq "$dcode" 0 "doctor clean on example: $dout"
+
 summary

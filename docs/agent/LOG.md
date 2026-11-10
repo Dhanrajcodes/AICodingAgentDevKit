@@ -56,3 +56,7 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 ## 2026-11-10: T-12 public docs
 - Changed: README.md; docs/getting-started, security, customizing, updating, adopting, token-budget, tool-support, faq; architecture.md updated for security, templates and doctor checks.
 - Evidence: all relative links in README.md and docs/*.md resolve (link check script). Sizes quoted in the README and token-budget.md come from `wc -c` / `wc -l` on the payload: ring 0 = 5458 bytes, kit block 47 lines, payload markdown about 114 KB.
+
+## 2026-11-10: T-13 example workspace
+- Changed: examples/sample-workspace (fictional invoicing SaaS after three sessions: mid-task STATUS, evidence-backed LOG, decision index plus one full record, research by experiment, a feature plan with a doing and a blocked task).
+- Evidence: new kit test installs the kit over a copy of the example, confirms memory is kept and the block refreshed, and doctor exits 0; the example kit block must match the template. `bash tests/run.sh` → 178/55/48 pass.
