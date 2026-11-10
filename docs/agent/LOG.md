@@ -17,3 +17,8 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 - Changed: 13 templates; `.agentkit.local/` seeds (README, overrides, budgets.env).
 - Ruling: no `kit/docs/agent/` payload. The installer seeds `docs/agent/` from `.agentkit/templates/` (status, log, decisions-index, open-questions) so each memory shape exists once. Cost if wrong: a mapping table in both installers.
 - Evidence: fresh ring 0 (templates AGENTS + status + decisions-index) = 4889 bytes (`wc -c`).
+
+## 2026-11-10: T-06 install.sh
+- Changed: POSIX `install.sh`; `tests/lib.sh`, `tests/test_install.sh`, `tests/test_kit.sh`, `tests/run.sh`.
+- Evidence: `bash tests/run.sh` → kit 99/99, install.sh 52/52 (failed 42/53 before the script existed).
+- Ruling: added `test_kit.sh` (budgets, INDEX links, cross-refs, LICENSE copy) beyond the plan, so CI enforces the token budget. Cost if wrong: none.

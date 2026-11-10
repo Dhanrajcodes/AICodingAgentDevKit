@@ -10,9 +10,9 @@ Status: `todo`, `doing`, `done`, `blocked (reason)`, `dropped (reason)`
 | T-02 | Entry points and index | done | 10c9c33 |
 | T-03 | Rules | done | 12726c6 |
 | T-04 | Playbooks | done | af4c927 |
-| T-05 | Templates and seeds | done | (this) |
-| T-06 | install.sh + tests | doing | |
-| T-07 | install.ps1 + tests | todo | |
+| T-05 | Templates and seeds | done | cc8741b |
+| T-06 | install.sh + tests | done | (this) |
+| T-07 | install.ps1 + tests | doing | |
 | T-08 | doctor.sh + tests | todo | |
 | T-09 | doctor.ps1 + tests | todo | |
 | T-10 | INSTALL.md | todo | |
