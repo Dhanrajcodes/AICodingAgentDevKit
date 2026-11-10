@@ -70,3 +70,7 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 - Trial: installed into a copy of a real multi-repo workspace with its own harness. User files kept, entry file reported `adopt`; doctor flagged its 66 KB ring 0 and oversized STATUS and DECISIONS.
 - Evidence: `bash tests/run.sh` → kit 178/178, install.sh 63/63, doctor.sh 54/54; `tests/run.ps1` → install.ps1 61/61, doctor.ps1 54/54.
 - Sizes after fixes: ring 0 = 5701 bytes, kit block 48 lines, payload markdown 114866 bytes.
+
+## 2026-11-10: first CI run on the PR
+- The workflow file was rejected: step-level `shell: ${{ matrix.shell }}` isn't allowed; moved to the job's `defaults.run.shell`.
+- macOS failed: `/bin/sh` there is bash 3.2, which can't parse a `case` pattern's `)` inside `$( ... )`. doctor.sh died at the env-ignored check. Fixed with the POSIX leading-paren form `(pattern)`. ShellCheck, Ubuntu, Windows PowerShell 5.1 and pwsh 7 passed on the first run.
