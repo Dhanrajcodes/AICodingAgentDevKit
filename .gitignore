@@ -14,3 +14,4 @@ tests/.tmp/
 .env
 .env.*
 !.env.example
+tests/.tmp-ps/

@@ -22,3 +22,7 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 - Changed: POSIX `install.sh`; `tests/lib.sh`, `tests/test_install.sh`, `tests/test_kit.sh`, `tests/run.sh`.
 - Evidence: `bash tests/run.sh` → kit 99/99, install.sh 52/52 (failed 42/53 before the script existed).
 - Ruling: added `test_kit.sh` (budgets, INDEX links, cross-refs, LICENSE copy) beyond the plan, so CI enforces the token budget. Cost if wrong: none.
+
+## 2026-11-10: T-07 install.ps1
+- Changed: `install.ps1`, `tests/lib.ps1`, `tests/test_install.ps1`, `tests/run.ps1`.
+- Evidence: `powershell -File tests/run.ps1` → install.ps1 52/52 under Windows PowerShell 5.1 (failed before the script existed). Parity: fresh-install output and resulting tree identical to install.sh (`diff`, `diff -r`). `.ps1` files 0 non-ASCII bytes. pwsh 7 not installed locally; CI covers it (T-11).
