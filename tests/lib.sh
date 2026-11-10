@@ -29,3 +29,8 @@ summary() {
   printf '%s: %d passed, %d failed\n' "$SUITE" "$PASS" "$FAIL"
   [ "$FAIL" -eq 0 ]
 }
+
+# Portable in-place edit (BSD and GNU sed differ on -i): sedi <expr> <file>
+sedi() { sed "$1" "$2" > "$2.tmp" && mv "$2.tmp" "$2"; }
+# Convert a file to CRLF line endings: to_crlf <file>
+to_crlf() { awk '{ printf "%s\r\n", $0 }' "$1" > "$1.tmp" && mv "$1.tmp" "$1"; }

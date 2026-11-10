@@ -60,19 +60,19 @@ assert_contains "$out" "warn log-size" "label"
 
 CASE=status-fresh
 t=$(fresh k9)
-sed -i 's/^Last updated: .*/Last updated: 2026-01-01/' "$t/docs/agent/STATUS.md"
+sedi 's/^Last updated: [0-9-]*/Last updated: 2026-01-01/' "$t/docs/agent/STATUS.md"
 printf '\n## 2026-02-01: later work\n- x\n' >> "$t/docs/agent/LOG.md"
 doc "$t"
 assert_contains "$out" "warn status-fresh" "stale"
-sed -i 's/^Last updated: .*/Last updated: 2026-03-01/' "$t/docs/agent/STATUS.md"
+sedi 's/^Last updated: [0-9-]*/Last updated: 2026-03-01/' "$t/docs/agent/STATUS.md"
 doc "$t"
 assert_contains "$out" "ok   status-fresh" "fresh"
 
 CASE=crlf-status
-sed -i 's/$/\r/' "$t/docs/agent/STATUS.md"
+to_crlf "$t/docs/agent/STATUS.md"
 doc "$t"
 assert_contains "$out" "ok   status-fresh" "crlf parses"
-sed -i 's/^Last updated: .*/Last updated: 2026-01-01\r/' "$t/docs/agent/STATUS.md"
+sedi 's/^Last updated: [0-9-]*/Last updated: 2026-01-01/' "$t/docs/agent/STATUS.md"
 doc "$t"
 assert_contains "$out" "warn status-fresh" "crlf stale"
 

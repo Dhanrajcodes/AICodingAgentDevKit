@@ -134,3 +134,9 @@ Step list any agent can follow to do exactly what the scripts do, including upda
 - Run both test suites; run installer into a scratch copy of a real multi-repo workspace layout; run doctor; record ring-0 bytes in LOG.
 - Whole-repo review (fresh reviewer).
 - Update CHANGELOG `1.0.0`, tag `v1.0.0`, push `main` and tag.
+
+### T-15 Security rulebook (added 2026-11-10, owner request, D-0014)
+Files: `kit/.agentkit/security/RULEBOOK.md` (non-negotiable rules + production gate), `kit/.agentkit/security/checklists/*.md` (auth-sessions, api-input, data-crypto, secrets-config, supply-chain, infra-deploy, frontend-client, files-uploads, ai-llm, logging-incident), `kit/.agentkit/playbooks/security-review.md`, `templates/threat-model.md`, `templates/security-review.md`; `rules/security-privacy.md` points to the rulebook; AGENTS.md kit block names the rulebook; INDEX entries; doctor check `env-ignored` (both shells, tests).
+- Standards cited with versions verified by research on 2026-11-10 (OWASP Top 10, ASVS, API Top 10, LLM Top 10, CWE Top 25, NIST SSDF, SLSA).
+- Overrides cannot relax a rulebook rule; only an owner waiver logged as a decision with the accepted risk.
+- Verify: kit tests (line budgets, INDEX links) and doctor tests pass in both shells.

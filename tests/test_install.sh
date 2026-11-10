@@ -37,7 +37,7 @@ assert_contains "$out" "updated kit block in AGENTS.md" "block"
 assert_contains "$out" "kept CLAUDE.md" "stub kept"
 
 CASE=block-refresh
-sed -i 's/Read this first\./OLD TEXT/' "$t/AGENTS.md"
+sedi 's/Read this first./OLD TEXT/' "$t/AGENTS.md"
 sh "$INSTALL" "$t" >/dev/null 2>&1
 assert_file_has "$t/AGENTS.md" "Read this first."
 assert_file_lacks "$t/AGENTS.md" "OLD TEXT"
@@ -54,7 +54,7 @@ assert_same "$t/GEMINI.md" "$TPL/stub.md"
 CASE=crlf
 t=$(mktarget crlf)
 sh "$INSTALL" "$t" >/dev/null 2>&1
-sed -i 's/Read this first\./OLD TEXT/; s/$/\r/' "$t/AGENTS.md"
+sedi 's/Read this first./OLD TEXT/' "$t/AGENTS.md"; to_crlf "$t/AGENTS.md"
 printf 'CRLF-NOTE\r\n' >> "$t/AGENTS.md"
 out=$(sh "$INSTALL" "$t" 2>&1)
 assert_contains "$out" "updated kit block in AGENTS.md" "crlf block"

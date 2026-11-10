@@ -72,7 +72,7 @@ elif has_markers "$A"; then
       $0 == s { printf "%s", b; skip = 1; next }
       $0 == e { skip = 0; next }
       !skip { print }' > "$tmp"
-    if [ "$cr" -eq 1 ]; then sed 's/$/\r/' "$tmp" > "$tmp.2" && mv "$tmp.2" "$tmp"; fi
+    if [ "$cr" -eq 1 ]; then awk '{ printf "%s\r\n", $0 }' "$tmp" > "$tmp.2" && mv "$tmp.2" "$tmp"; fi
     mv "$tmp" "$A"
   fi
   say "updated kit block in AGENTS.md"
