@@ -6,9 +6,9 @@ Status: `todo`, `doing`, `done`, `blocked (reason)`, `dropped (reason)`
 
 | ID | Task | Status | Commit |
 |---|---|---|---|
-| T-01 | Repo foundation | doing | |
-| T-02 | Entry points and index | todo | |
-| T-03 | Rules | todo | |
+| T-01 | Repo foundation | done | ea81209 |
+| T-02 | Entry points and index | done | (this) |
+| T-03 | Rules | doing | |
 | T-04 | Playbooks | todo | |
 | T-05 | Templates and seeds | todo | |
 | T-06 | install.sh + tests | todo | |

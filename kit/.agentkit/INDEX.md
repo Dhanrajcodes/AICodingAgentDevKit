@@ -1,0 +1,35 @@
+# Kit index
+
+Open only what the task needs. One line per file: what it is and when to read it.
+
+## Rules (standards)
+- `rules/working.md`: memory, scope, asking vs assuming, tiers. Read when unsure how to proceed or before a feature-tier task.
+- `rules/context-economy.md`: how to spend tokens and context. Read at the start of any long or wide task.
+- `rules/truthfulness.md`: claim labels, sources, evidence, checking APIs and packages exist. Read before stating facts, adding a dependency or reporting results.
+- `rules/research.md`: how to research and record findings. Read before any research or comparison.
+- `rules/engineering.md`: honest code, tests, dependencies, shape of changes. Read before writing or changing code.
+- `rules/frontend-ui.md`: UI quality, states, accessibility, responsive, banned AI-slop patterns. Read before any UI, styling or user-facing copy work.
+- `rules/backend.md`: validation, errors, data, jobs, time, API shape. Read before any API, database, job or integration work.
+- `rules/security-privacy.md`: secrets, personal data, auth. Read before touching auth, user data, logs, config or anything committed.
+- `rules/writing.md`: docs, commits, messages, UI copy. Read before writing docs, commit messages or copy.
+
+## Playbooks (procedures)
+- `playbooks/session-start.md`: starting or resuming work, in any tool.
+- `playbooks/handoff.md`: finishing a task, pausing, or when the chat grows long.
+- `playbooks/plan-and-track.md`: choosing a tier; writing a spec, plan and tracker; working a tracker.
+- `playbooks/log-decision.md`: any choice someone could later ask "why?" about.
+- `playbooks/research.md`: researching a library, API, approach or competitor.
+- `playbooks/definition-of-done.md`: before saying anything is done.
+- `playbooks/edge-cases.md`: designing or building a feature, flow, job or form.
+- `playbooks/bugfix.md`: fixing a bug or a failing test.
+- `playbooks/review.md`: reviewing a change, yours or another agent's.
+- `playbooks/adopt.md`: installing into a project that already has agent docs.
+- `playbooks/compact.md`: memory files over budget, or doctor warns.
+
+## Templates (shapes for memory files)
+- `templates/status.md`, `templates/log-entry.md`, `templates/decisions-index.md`, `templates/decision.md`, `templates/open-questions.md`
+- `templates/spec.md`, `templates/plan.md`, `templates/tracker.md`, `templates/bugfix.md`, `templates/research-note.md`
+
+## Tools
+- `doctor.sh` / `doctor.ps1`: checks memory sizes, stale status, stubs and secrets. Run `sh .agentkit/doctor.sh` or `powershell -File .agentkit/doctor.ps1`.
+- `VERSION`: installed kit version.

@@ -1,0 +1,62 @@
+<!-- agentkit:start -->
+# AGENTS.md
+
+Read this first. It applies to every AI agent in this workspace (Claude, Codex, Gemini, Cursor, Copilot or any other). The section between the agentkit markers is managed by the AI Coding Agent Dev Kit; edit the project section below it instead.
+
+## Start of every session
+1. Read `docs/agent/STATUS.md` (where things stand) and `docs/agent/DECISIONS.md` (settled; don't reopen).
+2. If STATUS names an active plan, read that plan's `tracker.md`.
+3. Check STATUS against the code and recent git log. If they disagree, the code wins: fix STATUS and say so.
+4. Tell the user in 2-3 lines where things stand and what you'll do next.
+5. Load nothing else until the task needs it. `.agentkit/INDEX.md` says which rule or playbook to read for which task.
+6. If `.agentkit.local/overrides.md` has content, read it. It wins over `.agentkit/`.
+
+## How to work
+- **Files are the memory, not the chat.** Anything another agent would need goes into `docs/agent/` when it happens.
+- **Pick a tier and say it:** quick (do, verify, one log line), small (short plan in chat, build, verify, log), feature (plan folder with spec, plan, tracker). Move up a tier the moment the work grows. Details: `.agentkit/playbooks/plan-and-track.md`.
+- **Never assume a requirement.** If it isn't in the code, the docs or DECISIONS, ask. Ask as multiple choice with your recommended option first, marked "(Recommended)". Use the tool's question UI if it has one.
+- **Never invent facts, APIs, packages, versions or results.** Check the installed version and its docs before using an API. Label claims verified, inferred or unverified.
+- **Proof before "done".** Run it, test it, show the output. Follow `.agentkit/playbooks/definition-of-done.md`. If something wasn't verified, say so plainly.
+- **No hacks.** Fix causes, not symptoms. Never weaken, skip or delete a test, silence an error or disable a check to get green.
+- **Stay inside the task.** Note unrelated problems in `docs/agent/OPEN-QUESTIONS.md` instead of fixing them on the side.
+- **Spend tokens only where the project needs them.** Read the part of a file you need, search before reading, keep long output out of the chat. See `.agentkit/rules/context-economy.md`.
+
+## Truth order
+The user's latest words, then the code and git history, then `docs/agent/` files, then your memory of the chat. Re-read a file instead of trusting recall.
+
+## Memory files (`docs/agent/`)
+| File | Job | How it changes |
+|---|---|---|
+| `STATUS.md` | Now: phase, in progress, next step, blocked | Rewrite. Max 40 lines |
+| `LOG.md` | What was done, files, how verified | Append only |
+| `DECISIONS.md` | One line per decision in force | Add rows; full reasoning in `decisions/` |
+| `OPEN-QUESTIONS.md` | Waiting on a human | Add; delete when answered |
+| `plans/<date-slug>/` | spec, plan, tracker for one feature | Tracker: one task `doing` at a time |
+| `research/` | Findings with sources and dates | One file per topic |
+
+## End of every task, or when the chat grows long
+Run `.agentkit/playbooks/handoff.md`: rewrite STATUS, append to LOG, log decisions, update the tracker. The test: a different AI tool in a fresh chat can continue from the files alone. If context is long or you notice drift, hand off and suggest a fresh session.
+
+## Never
+- Write secrets, tokens, keys or real personal data into any file that gets committed.
+- Edit `.agentkit/`. It is replaced on update. Put changes in `.agentkit.local/overrides.md`.
+<!-- agentkit:end -->
+
+# Project
+
+Fill this in once. Keep it short: facts an agent can't get from the code in a minute.
+
+## What this is
+<!-- One or two lines: the product, who it's for, the quality bar. -->
+
+## Layout
+<!-- Repos and folders, one line each. Mark read-only folders (client docs, owner notes). -->
+
+## Commands
+<!-- Install, dev, test, typecheck, lint, build. Exact commands. -->
+
+## Stack
+<!-- Languages, frameworks and versions that matter. -->
+
+## Project rules
+<!-- Only what differs from or adds to the kit's rules. -->
