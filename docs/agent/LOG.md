@@ -7,3 +7,73 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 - Researched AGENTS.md support, Spec Kit, BMAD, Agent OS, superpowers, Memory Bank, Task Master, Kiro, ADR formats and instruction-file size guidance.
 - Q&A with the owner: D-0001 to D-0010.
 - Wrote `docs/architecture.md` (spec) and the v1 plan and tracker.
+
+## 2026-11-10: T-01 to T-04
+- Changed: repo foundation, AGENTS.md kit block and stubs, INDEX, 9 rules, 11 playbooks.
+- Ruling: the AGENTS.md template and tool stub live in `kit/.agentkit/templates/` (not at `kit/` root), so every install carries them for adopt and agent-run installs. One source, no copy drift. Cost if wrong: the installer reads one extra path.
+- Evidence: kit block 43 lines, 4022 bytes; all rules and playbooks under 70 lines (`wc -l`).
+
+## 2026-11-10: T-05 templates and seeds
+- Changed: 13 templates; `.agentkit.local/` seeds (README, overrides, budgets.env).
+- Ruling: no `kit/docs/agent/` payload. The installer seeds `docs/agent/` from `.agentkit/templates/` (status, log, decisions-index, open-questions) so each memory shape exists once. Cost if wrong: a mapping table in both installers.
+- Evidence: fresh ring 0 (templates AGENTS + status + decisions-index) = 4889 bytes (`wc -c`).
+
+## 2026-11-10: T-06 install.sh
+- Changed: POSIX `install.sh`; `tests/lib.sh`, `tests/test_install.sh`, `tests/test_kit.sh`, `tests/run.sh`.
+- Evidence: `bash tests/run.sh` → kit 99/99, install.sh 52/52 (failed 42/53 before the script existed).
+- Ruling: added `test_kit.sh` (budgets, INDEX links, cross-refs, LICENSE copy) beyond the plan, so CI enforces the token budget. Cost if wrong: none.
+
+## 2026-11-10: T-07 install.ps1
+- Changed: `install.ps1`, `tests/lib.ps1`, `tests/test_install.ps1`, `tests/run.ps1`.
+- Evidence: `powershell -File tests/run.ps1` → install.ps1 52/52 under Windows PowerShell 5.1 (failed before the script existed). Parity: fresh-install output and resulting tree identical to install.sh (`diff`, `diff -r`). `.ps1` files 0 non-ASCII bytes. pwsh 7 not installed locally; CI covers it (T-11).
+
+## 2026-11-10: T-08 doctor.sh
+- Changed: `kit/.agentkit/doctor.sh`, `tests/test_doctor.sh`.
+- Evidence: `bash tests/run.sh` → kit 99/99, install 52/52, doctor 35/35 (doctor 1/35 before the script existed). Covers each check warning, budgets override, CRLF STATUS, paths with spaces, and secrets reported by file name only.
+- Ruling: check labels have no spaces (`stub-claude`, `stub-gemini` instead of `stub CLAUDE.md`) so output is easy to grep. Cost if wrong: label rename.
+- Ruling: default workspace is the folder holding `.agentkit/` (script's parent), not the cwd, so doctor works from any directory. Cost if wrong: none; an explicit path still wins.
+- Ruling: budgets.env is parsed (known keys, digits only), never sourced, so a user file can't run code.
+
+## 2026-11-10: T-09 doctor.ps1
+- Changed: `kit/.agentkit/doctor.ps1`, `tests/test_doctor.ps1`; fix in `install.ps1`; new `update-recreates-stub` case in both install suites.
+- Evidence: `tests/run.ps1` → install.ps1 55/55, doctor.ps1 35/35 (34/35 failed with the script hidden). `tests/run.sh` → kit 99/99, install.sh 55/55, doctor.sh 35/35.
+- Bug found and fixed: PowerShell variables are case-insensitive. `$m` overwrote `$M` in doctor.ps1, and `$tpl` overwrote `$Tpl` in install.ps1, which crashed an update that had to recreate a missing stub. Regression test failed first, then passed. Scanned all `.ps1` files for other case collisions: none.
+
+## 2026-11-10: T-10 INSTALL.md, T-11 CI
+- Changed: `INSTALL.md` (agent-run install, same steps and report words as the scripts); `.github/workflows/ci.yml` (bash on Ubuntu and macOS, ShellCheck, PowerShell 5.1 and 7 on Windows, fresh-install doctor gate).
+- Bug found: `install.sh` used `sed 's/$/\r/'` for CRLF files, which BSD sed (macOS) writes as a literal `r`. Replaced with awk. Tests now use portable `sedi`/`to_crlf` helpers so macOS CI runs real BSD tools.
+- Evidence: `bash tests/run.sh` → 99/55/35 pass. CI not yet run (no push yet); ShellCheck not installed locally.
+- Owner added a request mid-build: a security rulebook that can't be compromised. Added as T-15 and D-0014.
+
+## 2026-11-10: T-15 security rulebook
+- Changed: `security/RULEBOOK.md` (SR-01 to SR-20, waivers, release gate, standards baseline); 13 checklists in `security/checklists/` including `ai-dev-workflow.md` (the coding agent itself) and modern AI items (indirect prompt injection, Unicode smuggling, tool poisoning, model files, voice agents); `playbooks/security-review.md`; `templates/threat-model.md`, `templates/security-review.md`; rules, AGENTS kit block, INDEX, definition of done and overrides updated. Doctor: new checks `env-ignored` and `no-hidden-unicode` in both shells.
+- Sources: standards versions checked by a research sub-agent on 2026-11-10 (OWASP Top 10:2025, ASVS 5.0, API Top 10 2023, LLM Top 10 2025, Agentic Top 10 2026, CWE Top 25 2025, NIST SSDF 1.1, SLSA 1.2, OWASP cheat sheets, MCP security best practices, USENIX 2025 package-hallucination study).
+- Evidence: `bash tests/run.sh` → kit 173/173, install.sh 55/55, doctor.sh 48/48; `tests/run.ps1` → install.ps1 55/55, doctor.ps1 48/48. New kit tests: no hidden Unicode anywhere in the payload (proved by planting a zero-width space: failed, then passed after removal) and `.ps1` files ASCII only.
+- Found: the editing tool turned `​`-style regex escapes into real invisible characters in `doctor.ps1`; rewritten as ASCII escapes. That is why the payload scan now exists.
+- Owner request: no AI co-author lines; the owner is the sole contributor. Local history rewritten before any push (trailers removed); commit hashes in the tracker updated.
+- Ruling: tests now create workspaces in the system temp folder, not inside the repo, so git-related checks aren't masked by the kit repo's own `.gitignore`.
+
+## 2026-11-10: T-12 public docs
+- Changed: README.md; docs/getting-started, security, customizing, updating, adopting, token-budget, tool-support, faq; architecture.md updated for security, templates and doctor checks.
+- Evidence: all relative links in README.md and docs/*.md resolve (link check script). Sizes quoted in the README and token-budget.md come from `wc -c` / `wc -l` on the payload: ring 0 = 5458 bytes, kit block 47 lines, payload markdown about 114 KB.
+
+## 2026-11-10: T-13 example workspace
+- Changed: examples/sample-workspace (fictional invoicing SaaS after three sessions: mid-task STATUS, evidence-backed LOG, decision index plus one full record, research by experiment, a feature plan with a doing and a blocked task).
+- Evidence: new kit test installs the kit over a copy of the example, confirms memory is kept and the block refreshed, and doctor exits 0; the example kit block must match the template. `bash tests/run.sh` → 178/55/48 pass.
+
+## 2026-11-10: T-14 review and fix pass
+- Fresh independent review (separate agent, whole repo). Findings fixed, each with a test that failed first:
+  - Critical: installing into the kit's own `kit/` folder deleted the payload. Both installers now resolve paths and refuse (exit 3); the copy is staged and swapped so a failed copy never leaves a workspace without a kit.
+  - Important: a *file* named `.agentkit` was deleted by `install.sh` (now exit 3, as in `.ps1`; links refused too). CRLF `AGENTS.md` came out LF on Git Bash (grep strips CR; CR is now counted with `tr`). Budget lines with trailing comments were ignored. The `sk-` secret pattern matched words like "task-tracking" (left boundary added). Duplicate kit markers passed the doctor while the installer refused them (one shared rule now). The macOS CI job replaced BSD sed with GNU sed (removed). `install.ps1` ignored extra arguments (now exit 2).
+  - Minor, fixed: oversized budget values crashed `doctor.ps1` (capped at 18 digits); root `AGENTS.md`/stubs are now scanned for secrets; doctor commands carry `-ExecutionPolicy Bypass`; `agent (proposed)` decisions are no longer described as settled; security exception stated in `.agentkit.local/README.md`; `docs/agent/security/` added to the memory table; SR-17 says pseudonymous IDs; stale paths, sizes and badge fixed; kit tests use ERE greps for macOS.
+  - Minor, deferred: UTF-8 BOM on a marker first line (sh says adopt, ps1 updates); a final newline is added to files that lack one; env-ignored depth 3 and `.envrc` / `.env.local.example` handling; nested `AGENTS.md` and `.github/copilot-instructions.md` not scanned for hidden Unicode.
+- Trial: installed into a copy of a real multi-repo workspace with its own harness. User files kept, entry file reported `adopt`; doctor flagged its 66 KB ring 0 and oversized STATUS and DECISIONS.
+- Evidence: `bash tests/run.sh` → kit 178/178, install.sh 63/63, doctor.sh 54/54; `tests/run.ps1` → install.ps1 61/61, doctor.ps1 54/54.
+- Sizes after fixes: ring 0 = 5701 bytes, kit block 48 lines, payload markdown 114866 bytes.
+
+## 2026-11-10: first CI run on the PR
+- The workflow file was rejected: step-level `shell: ${{ matrix.shell }}` isn't allowed; moved to the job's `defaults.run.shell`.
+- macOS failed: `/bin/sh` there is bash 3.2, which can't parse a `case` pattern's `)` inside `$( ... )`. doctor.sh died at the env-ignored check. Fixed with the POSIX leading-paren form `(pattern)`. ShellCheck, Ubuntu, Windows PowerShell 5.1 and pwsh 7 passed on the first run.
+
+## 2026-11-10: release
+- CI green on PR #1 (run 42866323424): all 5 jobs. T-14 done; merge is the owner's.

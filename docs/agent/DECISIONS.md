@@ -17,6 +17,7 @@ One line each. Full reasoning in `decisions/` when a file is linked. Replaced de
 | D-0011 | Folder names: `.agentkit/` (kit-owned), `.agentkit.local/` (user), `docs/agent/` (memory) | agent (proposed) |
 | D-0012 | Decisions stored as a one-line index plus per-decision files; LOG rotates monthly into `log/` | agent (proposed) |
 | D-0013 | Fresh-install ring 0 (AGENTS.md + STATUS.md + DECISIONS.md) budget is 8 KB | agent (proposed) |
+| D-0014 | Kit ships a security rulebook that overrides cannot relax; only a logged owner waiver with accepted risk | owner |
 
 ## Replaced
 

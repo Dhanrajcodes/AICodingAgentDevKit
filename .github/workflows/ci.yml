@@ -1,0 +1,58 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  posix:
+    name: Tests (bash, ${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run test suites
+        run: bash tests/run.sh
+      - name: Fresh install passes doctor
+        run: |
+          ws="$RUNNER_TEMP/fresh workspace"
+          mkdir -p "$ws"
+          sh install.sh "$ws"
+          sh "$ws/.agentkit/doctor.sh"
+
+  shellcheck:
+    name: ShellCheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint shell scripts
+        run: shellcheck -s sh install.sh kit/.agentkit/doctor.sh
+
+  windows:
+    name: Tests (${{ matrix.shell }}, Windows)
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shell: [powershell, pwsh]
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run test suites
+        run: ./tests/run.ps1
+      - name: Fresh install passes doctor
+        run: |
+          $ws = Join-Path $env:RUNNER_TEMP 'fresh workspace'
+          New-Item -ItemType Directory -Path $ws -Force | Out-Null
+          ./install.ps1 -Target $ws
+          & "$ws/.agentkit/doctor.ps1"
+          if ($LASTEXITCODE -ne 0) { exit 1 }
