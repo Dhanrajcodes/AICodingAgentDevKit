@@ -26,3 +26,10 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 ## 2026-11-10: T-07 install.ps1
 - Changed: `install.ps1`, `tests/lib.ps1`, `tests/test_install.ps1`, `tests/run.ps1`.
 - Evidence: `powershell -File tests/run.ps1` → install.ps1 52/52 under Windows PowerShell 5.1 (failed before the script existed). Parity: fresh-install output and resulting tree identical to install.sh (`diff`, `diff -r`). `.ps1` files 0 non-ASCII bytes. pwsh 7 not installed locally; CI covers it (T-11).
+
+## 2026-11-10: T-08 doctor.sh
+- Changed: `kit/.agentkit/doctor.sh`, `tests/test_doctor.sh`.
+- Evidence: `bash tests/run.sh` → kit 99/99, install 52/52, doctor 35/35 (doctor 1/35 before the script existed). Covers each check warning, budgets override, CRLF STATUS, paths with spaces, and secrets reported by file name only.
+- Ruling: check labels have no spaces (`stub-claude`, `stub-gemini` instead of `stub CLAUDE.md`) so output is easy to grep. Cost if wrong: label rename.
+- Ruling: default workspace is the folder holding `.agentkit/` (script's parent), not the cwd, so doctor works from any directory. Cost if wrong: none; an explicit path still wins.
+- Ruling: budgets.env is parsed (known keys, digits only), never sourced, so a user file can't run code.

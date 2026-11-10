@@ -1,0 +1,101 @@
+#!/bin/sh
+# AI Coding Agent Dev Kit doctor: checks memory sizes, stale status, stubs and secrets.
+# Usage: sh .agentkit/doctor.sh [WORKSPACE]   (default: the folder that holds .agentkit/)
+# Exit 0 when clean, 1 when there are warnings. Budgets: .agentkit.local/budgets.env
+# Copyright (c) 2026 Dhanraj Singh. See LICENSE.
+set -u
+
+W=${1:-"$(dirname "$0")/.."}
+[ -d "$W" ] || { echo "error: workspace not found: $W" >&2; exit 2; }
+M="$W/docs/agent"
+
+RING0_MAX_BYTES=8192
+AGENTS_MAX_LINES=120
+STATUS_MAX_LINES=40
+DECISIONS_MAX_LINES=80
+LOG_MAX_BYTES=24576
+B="$W/.agentkit.local/budgets.env"
+if [ -f "$B" ]; then
+  # Only accept KEY=NUMBER lines for known keys; never execute the file.
+  for k in RING0_MAX_BYTES AGENTS_MAX_LINES STATUS_MAX_LINES DECISIONS_MAX_LINES LOG_MAX_BYTES; do
+    v=$(tr -d '\r' < "$B" | sed -n "s/^[[:space:]]*$k=\([0-9][0-9]*\)[[:space:]]*\$/\1/p" | tail -n 1)
+    [ -n "$v" ] && eval "$k=$v"
+  done
+fi
+
+WARN=0
+ok()   { echo "ok   $1"; }
+warn() { echo "warn $1: $2"; WARN=$((WARN + 1)); }
+bytes() { if [ -f "$1" ]; then wc -c < "$1" | tr -d ' '; else echo 0; fi; }
+nlines() { if [ -f "$1" ]; then tr -d '\r' < "$1" | wc -l | tr -d ' '; else echo 0; fi; }
+
+# kit-installed
+if [ -f "$W/.agentkit/VERSION" ]; then ok kit-installed
+else warn kit-installed ".agentkit/VERSION missing; reinstall the kit"; fi
+
+# kit-markers
+A="$W/AGENTS.md"
+if [ -f "$A" ] && tr -d '\r' < "$A" | grep -qx '<!-- agentkit:start -->' \
+   && tr -d '\r' < "$A" | grep -qx '<!-- agentkit:end -->'; then ok kit-markers
+else warn kit-markers "AGENTS.md missing or has no kit block; see .agentkit/playbooks/adopt.md"; fi
+
+# stubs
+for pair in claude:CLAUDE.md gemini:GEMINI.md; do
+  label="stub-${pair%%:*}"; f="${pair#*:}"
+  if [ -f "$W/$f" ] && grep -qF '@AGENTS.md' "$W/$f"; then ok "$label"
+  else warn "$label" "$f missing or doesn't import @AGENTS.md"; fi
+done
+
+# ring0-size
+r0=$(( $(bytes "$A") + $(bytes "$M/STATUS.md") + $(bytes "$M/DECISIONS.md") ))
+if [ "$r0" -le "$RING0_MAX_BYTES" ]; then ok ring0-size
+else warn ring0-size "AGENTS.md + STATUS.md + DECISIONS.md = $r0 bytes (budget $RING0_MAX_BYTES); run .agentkit/playbooks/compact.md"; fi
+
+# line budgets
+check_lines() { # label file max
+  n=$(nlines "$2")
+  if [ "$n" -le "$3" ]; then ok "$1"
+  else warn "$1" "${2#"$W/"} has $n lines (budget $3); run .agentkit/playbooks/compact.md"; fi
+}
+check_lines agents-lines "$A" "$AGENTS_MAX_LINES"
+check_lines status-lines "$M/STATUS.md" "$STATUS_MAX_LINES"
+check_lines decisions-lines "$M/DECISIONS.md" "$DECISIONS_MAX_LINES"
+
+# log-size
+lb=$(bytes "$M/LOG.md")
+if [ "$lb" -le "$LOG_MAX_BYTES" ]; then ok log-size
+else warn log-size "LOG.md is $lb bytes (budget $LOG_MAX_BYTES); rotate old months with .agentkit/playbooks/compact.md"; fi
+
+# status-fresh: newest LOG entry date must not be after STATUS "Last updated"
+sd=$( [ -f "$M/STATUS.md" ] && tr -d '\r' < "$M/STATUS.md" | sed -n 's/^Last updated: \([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}\).*/\1/p' | head -n 1)
+ld=$( [ -f "$M/LOG.md" ] && tr -d '\r' < "$M/LOG.md" | sed -n 's/^## \([0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}\).*/\1/p' | sort | tail -n 1)
+sdn=$(printf '%s' "${sd:-}" | tr -d '-'); ldn=$(printf '%s' "${ld:-}" | tr -d '-')
+if [ -z "$ldn" ]; then ok status-fresh
+elif [ -z "$sdn" ]; then warn status-fresh "STATUS.md has no 'Last updated: YYYY-MM-DD' line but LOG.md has entries; run .agentkit/playbooks/handoff.md"
+elif [ "$ldn" -gt "$sdn" ]; then warn status-fresh "STATUS.md last updated $sd, but LOG.md has an entry from $ld; run .agentkit/playbooks/handoff.md"
+else ok status-fresh; fi
+
+# tracker-single-doing
+multi=""
+if [ -d "$M/plans" ]; then
+  for f in "$M"/plans/*/tracker.md; do
+    [ -f "$f" ] || continue
+    n=$(tr -d '\r' < "$f" | grep -cE '\|[[:space:]]*doing[[:space:]]*\|')
+    [ "$n" -gt 1 ] && multi="$multi ${f#"$W/"}($n)"
+  done
+fi
+if [ -z "$multi" ]; then ok tracker-single-doing
+else warn tracker-single-doing "more than one 'doing' task in:$multi"; fi
+
+# no-secrets (file names only, never the match)
+PAT='sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|AIza[0-9A-Za-z_-]{35}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+hits=""
+for d in "$M" "$W/.agentkit.local"; do
+  [ -d "$d" ] || continue
+  hits="$hits$(grep -rlE -- "$PAT" "$d" 2>/dev/null | while IFS= read -r f; do printf ' %s' "${f#"$W/"}"; done)"
+done
+if [ -z "$hits" ]; then ok no-secrets
+else warn no-secrets "possible secret in:$hits (remove it and rotate the key)"; fi
+
+echo "doctor: $WARN warning(s)"
+[ "$WARN" -eq 0 ]
