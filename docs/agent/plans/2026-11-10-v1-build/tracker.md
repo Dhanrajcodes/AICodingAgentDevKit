@@ -17,7 +17,7 @@ Status: `todo`, `doing`, `done`, `blocked (reason)`, `dropped (reason)`
 | T-09 | doctor.ps1 + tests | done | 4b0d3cc |
 | T-10 | INSTALL.md | done | 2fdf7f7 |
 | T-11 | CI | done | 2fdf7f7 |
-| T-15 | Security rulebook | done | (this) |
-| T-12 | Public docs | doing | |
-| T-13 | Example workspace | todo | |
+| T-15 | Security rulebook | done | 51b65f1 |
+| T-12 | Public docs | done | (this) |
+| T-13 | Example workspace | doing | |
 | T-14 | Final verification and release | todo | |

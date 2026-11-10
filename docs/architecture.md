@@ -50,7 +50,9 @@ The kit is installed at a **workspace root**: the folder you open in your editor
 │   ├── INDEX.md              what to read, when
 │   ├── rules/                standards, loaded on demand
 │   ├── playbooks/            step-by-step procedures, loaded on demand
-│   ├── templates/            shapes for memory files
+│   ├── security/             RULEBOOK.md (non-negotiable) + checklists/
+│   ├── templates/            shapes for memory files, plus the AGENTS.md
+│   │                         template and tool stub the installer writes
 │   ├── doctor.sh             health and token-budget check
 │   └── doctor.ps1
 ├── .agentkit.local/          YOURS. Never touched by updates.
@@ -146,8 +148,10 @@ Rules are split by domain so only the relevant ones load:
 - `engineering.md`: honest code, tests, dependencies, shape of changes.
 - `frontend-ui.md`: tokens, states, accessibility, responsive, banned AI-slop patterns.
 - `backend.md`: validation, errors, idempotency, time, data access, API shape.
-- `security-privacy.md`: secrets, personal data, auth.
+- `security-privacy.md`: the everyday security subset, pointing into the rulebook.
 - `writing.md`: docs, commits, copy.
+
+**Security** is separate and stricter. `security/RULEBOOK.md` holds 20 hard rules, the waiver process and the production release gate. Thirteen checklists cover classic web security and AI-era risks (prompt injection, tool poisoning, hallucinated packages, hidden-Unicode instruction attacks, the coding agent's own permissions). `.agentkit.local/overrides.md` can tighten the rulebook but never relax it; only a logged owner waiver can. See [security.md](security.md).
 
 **Definition of done** is a playbook, not a rule: a checklist run before the word "done", needing evidence (command output, a screenshot path that exists on disk) for each line.
 
@@ -159,7 +163,9 @@ Markdown rules are guidelines; agents sometimes skip them. The kit adds one opti
 - `STATUS.md` older than the newest `LOG.md` entry (forgotten handoff).
 - More than one `doing` task in a tracker.
 - Missing stubs or kit markers.
-- Likely secrets in memory files.
+- Likely secrets in memory files (reported by file name, never the value).
+- `.env` files inside a git repo that aren't git-ignored.
+- Invisible Unicode (tag characters, zero-width, bidi controls) in agent instruction and memory files.
 
 Doctor exits non-zero when it finds issues, so it can run in CI or a git hook if the user wants. Budgets are configurable in `.agentkit.local/budgets.env`.
 
@@ -192,3 +198,5 @@ Anything else: tell the agent "read AGENTS.md first".
 | Log rotation | Same reason for progress logs |
 | Tiers instead of mandatory ceremony | Full process on a typo wastes more tokens than it saves |
 | Optional doctor, no required hooks | Hooks are tool-specific; a shell script works everywhere |
+| Security rulebook can't be relaxed by overrides | Agents are easily talked into "just make it work"; a waiver must be a deliberate, logged owner decision |
+| Memory seeded from templates, not a second copy | Each file shape exists once, so there's nothing to drift |

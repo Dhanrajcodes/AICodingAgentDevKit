@@ -52,3 +52,7 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 - Found: the editing tool turned `​`-style regex escapes into real invisible characters in `doctor.ps1`; rewritten as ASCII escapes. That is why the payload scan now exists.
 - Owner request: no AI co-author lines; the owner is the sole contributor. Local history rewritten before any push (trailers removed); commit hashes in the tracker updated.
 - Ruling: tests now create workspaces in the system temp folder, not inside the repo, so git-related checks aren't masked by the kit repo's own `.gitignore`.
+
+## 2026-11-10: T-12 public docs
+- Changed: README.md; docs/getting-started, security, customizing, updating, adopting, token-budget, tool-support, faq; architecture.md updated for security, templates and doctor checks.
+- Evidence: all relative links in README.md and docs/*.md resolve (link check script). Sizes quoted in the README and token-budget.md come from `wc -c` / `wc -l` on the payload: ring 0 = 5458 bytes, kit block 47 lines, payload markdown about 114 KB.
