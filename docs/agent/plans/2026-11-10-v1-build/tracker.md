@@ -6,18 +6,18 @@ Status: `todo`, `doing`, `done`, `blocked (reason)`, `dropped (reason)`
 
 | ID | Task | Status | Commit |
 |---|---|---|---|
-| T-01 | Repo foundation | done | ea81209 |
-| T-02 | Entry points and index | done | 10c9c33 |
-| T-03 | Rules | done | 12726c6 |
-| T-04 | Playbooks | done | af4c927 |
-| T-05 | Templates and seeds | done | cc8741b |
-| T-06 | install.sh + tests | done | 4667f09 |
-| T-07 | install.ps1 + tests | done | 40b8ede |
-| T-08 | doctor.sh + tests | done | 8575e39 |
-| T-09 | doctor.ps1 + tests | done | 40355a9 |
-| T-10 | INSTALL.md | done | (this) |
-| T-11 | CI | done | (this) |
-| T-12 | Public docs | todo | |
+| T-01 | Repo foundation | done | 9e6a66e |
+| T-02 | Entry points and index | done | 78ce5f7 |
+| T-03 | Rules | done | 933883c |
+| T-04 | Playbooks | done | d955fe2 |
+| T-05 | Templates and seeds | done | 6ab778d |
+| T-06 | install.sh + tests | done | 1ae195f |
+| T-07 | install.ps1 + tests | done | 888b955 |
+| T-08 | doctor.sh + tests | done | 23c6e49 |
+| T-09 | doctor.ps1 + tests | done | 4b0d3cc |
+| T-10 | INSTALL.md | done | 2fdf7f7 |
+| T-11 | CI | done | 2fdf7f7 |
+| T-15 | Security rulebook | done | (this) |
+| T-12 | Public docs | doing | |
 | T-13 | Example workspace | todo | |
-| T-15 | Security rulebook | todo | |
 | T-14 | Final verification and release | todo | |

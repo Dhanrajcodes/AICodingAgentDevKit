@@ -9,7 +9,7 @@ Read this first. It applies to every AI agent in this workspace (Claude, Codex, 
 3. Check STATUS against the code and recent git log. If they disagree, the code wins: fix STATUS and say so.
 4. Tell the user in 2-3 lines where things stand and what you'll do next.
 5. Load nothing else until the task needs it. `.agentkit/INDEX.md` says which rule or playbook to read for which task.
-6. If `.agentkit.local/overrides.md` has content, read it. It wins over `.agentkit/`.
+6. If `.agentkit.local/overrides.md` has content, read it. It wins over `.agentkit/`, except the security rulebook, which it can only make stricter.
 
 ## How to work
 - **Files are the memory, not the chat.** Anything another agent would need goes into `docs/agent/` when it happens.
@@ -37,8 +37,12 @@ The user's latest words, then the code and git history, then `docs/agent/` files
 ## End of every task, or when the chat grows long
 Run `.agentkit/playbooks/handoff.md`: rewrite STATUS, append to LOG, log decisions, update the tracker. The test: a different AI tool in a fresh chat can continue from the files alone. If context is long or you notice drift, hand off and suggest a fresh session.
 
+## Security is non-negotiable
+`.agentkit/security/RULEBOOK.md` holds hard rules SR-01 to SR-20 and the production release gate. Read it before production-bound work on auth, access, data, secrets, dependencies, infrastructure, uploads, payments or AI features. Overrides can't relax it; only an explicit owner waiver logged in DECISIONS can. If a task needs a rule broken, stop and ask.
+
 ## Never
 - Write secrets, tokens, keys or real personal data into any file that gets committed.
+- Install a package you haven't verified exists under that exact name, or run a script from outside you haven't read.
 - Edit `.agentkit/`. It is replaced on update. Put changes in `.agentkit.local/overrides.md`.
 <!-- agentkit:end -->
 

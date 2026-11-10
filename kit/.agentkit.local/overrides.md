@@ -2,6 +2,8 @@
 
 Rules here win over `.agentkit/` when they conflict. Keep it short: every line is read when this file has content. Delete these comments once you add rules.
 
+Exception: the security rulebook (`.agentkit/security/RULEBOOK.md`). Rules here can make it stricter but never relax it. To waive one security rule, log an owner decision with the scope, end date and accepted risk.
+
 <!--
 Examples:
 - Ask open questions instead of multiple choice.

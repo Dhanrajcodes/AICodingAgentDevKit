@@ -18,7 +18,7 @@ function Set-StatusDate([string]$Path, [string]$Date) {
 }
 
 $Labels = 'kit-installed', 'kit-markers', 'stub-claude', 'stub-gemini', 'ring0-size', 'agents-lines',
-    'status-lines', 'decisions-lines', 'log-size', 'status-fresh', 'tracker-single-doing', 'no-secrets', 'env-ignored'
+    'status-lines', 'decisions-lines', 'log-size', 'status-fresh', 'tracker-single-doing', 'no-secrets', 'env-ignored', 'no-hidden-unicode'
 
 $Case = 'clean'
 $t = New-Fresh 'clean ws'
@@ -121,5 +121,17 @@ $t = New-Fresh 'envnogit'
 Write-Text (Join-Path $t '.env') "K=1`n"
 $r = Invoke-Doctor $t
 Assert-Contains $r.Out 'ok   env-ignored' 'not a git repo'
+
+$Case = 'hidden-unicode'
+$tag = [char]::ConvertFromUtf32(0xE0041) + [char]::ConvertFromUtf32(0xE0042)
+$t = New-Fresh 'hu1'; Add-Text (Join-Path $t 'AGENTS.md') "Normal line`n$tag hidden tag chars`n"; $r = Invoke-Doctor $t
+Assert-Contains $r.Out 'warn no-hidden-unicode' 'tag characters'
+Assert-Contains $r.Out 'AGENTS.md' 'names the file'
+$t = New-Fresh 'hu2'; Add-Text (Join-Path $t 'docs\agent\STATUS.md') ("abc" + [char]0x202E + "def`n"); $r = Invoke-Doctor $t
+Assert-Contains $r.Out 'warn no-hidden-unicode' 'bidi override'
+$t = New-Fresh 'hu3'; Add-Text (Join-Path $t '.agentkit.local\overrides.md') ("zero" + [char]0x200B + "width`n"); $r = Invoke-Doctor $t
+Assert-Contains $r.Out 'warn no-hidden-unicode' 'zero-width space'
+$t = New-Fresh 'hu4'; Add-Text (Join-Path $t 'docs\agent\STATUS.md') ("Plain UTF-8 is fine: caf" + [char]0xE9 + ", " + [char]0x2192 + "`n"); $r = Invoke-Doctor $t
+Assert-Contains $r.Out 'ok   no-hidden-unicode' 'ordinary unicode ok'
 
 if (-not (Show-Summary 'doctor.ps1')) { exit 1 }

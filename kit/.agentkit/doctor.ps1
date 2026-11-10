@@ -139,5 +139,20 @@ if (Get-Command git -ErrorAction SilentlyContinue) {
 if (-not $unignored) { Ok 'env-ignored' }
 else { Warn 'env-ignored' "not git-ignored, could be committed:$unignored (add to .gitignore)" }
 
+# no-hidden-unicode: invisible characters that can hide instructions in agent files
+# (Unicode tag characters, zero-width characters, bidirectional controls).
+$UPat = '\uDB40[\uDC00-\uDC7F]|[\u200B-\u200F\u2060\u202A-\u202E\u2066-\u2069]'
+$hitsU = ''
+$scan = @()
+foreach ($n in 'AGENTS.md', 'CLAUDE.md', 'GEMINI.md') { $p = Join-Path $W $n; if (Test-Path -LiteralPath $p -PathType Leaf) { $scan += $p } }
+foreach ($d in @((Join-Path $W '.agentkit.local'), $M)) {
+    if (Test-Path -LiteralPath $d) { $scan += @(Get-ChildItem -LiteralPath $d -Recurse -File -Force | ForEach-Object { $_.FullName }) }
+}
+foreach ($f in $scan) {
+    if ([regex]::IsMatch([IO.File]::ReadAllText($f, [Text.Encoding]::UTF8), $UPat)) { $hitsU += " $(Get-Rel $f)" }
+}
+if (-not $hitsU) { Ok 'no-hidden-unicode' }
+else { Warn 'no-hidden-unicode' "invisible or bidi characters in:$hitsU (could hide instructions; inspect and remove)" }
+
 Write-Output "doctor: $($script:Warn) warning(s)"
 if ($script:Warn -gt 0) { exit 1 } else { exit 0 }

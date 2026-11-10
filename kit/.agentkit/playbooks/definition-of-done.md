@@ -11,7 +11,8 @@ Use before saying any task is done, fixed, working or complete. Every applicable
 - [ ] Errors are handled where they happen: visible, logged with context, retried only if safe. No empty catch, no silent fallback.
 - [ ] No TODO, stub, placeholder, fake data, debug logging or commented-out code left.
 - [ ] No secrets or real personal data in code, fixtures, logs or commits.
-- [ ] New dependencies are justified and logged in DECISIONS.
+- [ ] New dependencies verified on their registry (exact name, publisher, maintained, no known vulnerabilities), justified and logged in DECISIONS.
+- [ ] No hard rule in `security/RULEBOOK.md` broken. If the task touched a security surface, the matching checklists were run. Production releases also passed `playbooks/security-review.md`.
 
 ## UI (if the task touched a screen)
 - [ ] Checked against `rules/frontend-ui.md`: tokens only, no banned patterns.

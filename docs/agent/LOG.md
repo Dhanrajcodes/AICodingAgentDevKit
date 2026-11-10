@@ -44,3 +44,11 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 - Bug found: `install.sh` used `sed 's/$/\r/'` for CRLF files, which BSD sed (macOS) writes as a literal `r`. Replaced with awk. Tests now use portable `sedi`/`to_crlf` helpers so macOS CI runs real BSD tools.
 - Evidence: `bash tests/run.sh` → 99/55/35 pass. CI not yet run (no push yet); ShellCheck not installed locally.
 - Owner added a request mid-build: a security rulebook that can't be compromised. Added as T-15 and D-0014.
+
+## 2026-11-10: T-15 security rulebook
+- Changed: `security/RULEBOOK.md` (SR-01 to SR-20, waivers, release gate, standards baseline); 13 checklists in `security/checklists/` including `ai-dev-workflow.md` (the coding agent itself) and modern AI items (indirect prompt injection, Unicode smuggling, tool poisoning, model files, voice agents); `playbooks/security-review.md`; `templates/threat-model.md`, `templates/security-review.md`; rules, AGENTS kit block, INDEX, definition of done and overrides updated. Doctor: new checks `env-ignored` and `no-hidden-unicode` in both shells.
+- Sources: standards versions checked by a research sub-agent on 2026-11-10 (OWASP Top 10:2025, ASVS 5.0, API Top 10 2023, LLM Top 10 2025, Agentic Top 10 2026, CWE Top 25 2025, NIST SSDF 1.1, SLSA 1.2, OWASP cheat sheets, MCP security best practices, USENIX 2025 package-hallucination study).
+- Evidence: `bash tests/run.sh` → kit 173/173, install.sh 55/55, doctor.sh 48/48; `tests/run.ps1` → install.ps1 55/55, doctor.ps1 48/48. New kit tests: no hidden Unicode anywhere in the payload (proved by planting a zero-width space: failed, then passed after removal) and `.ps1` files ASCII only.
+- Found: the editing tool turned `​`-style regex escapes into real invisible characters in `doctor.ps1`; rewritten as ASCII escapes. That is why the payload scan now exists.
+- Owner request: no AI co-author lines; the owner is the sole contributor. Local history rewritten before any push (trailers removed); commit hashes in the tracker updated.
+- Ruling: tests now create workspaces in the system temp folder, not inside the repo, so git-related checks aren't masked by the kit repo's own `.gitignore`.

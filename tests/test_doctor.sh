@@ -11,7 +11,7 @@ fresh() { # fresh <name> -> installed workspace path
 doc() { out=$(sh "$1/.agentkit/doctor.sh" "${2:-$1}" 2>&1); code=$?; }
 lines() { i=0; while [ $i -lt "$2" ]; do echo "line $i"; i=$((i + 1)); done >> "$1"; }
 
-LABELS="kit-installed kit-markers stub-claude stub-gemini ring0-size agents-lines status-lines decisions-lines log-size status-fresh tracker-single-doing no-secrets env-ignored"
+LABELS="kit-installed kit-markers stub-claude stub-gemini ring0-size agents-lines status-lines decisions-lines log-size status-fresh tracker-single-doing no-secrets env-ignored no-hidden-unicode"
 
 CASE=clean
 t=$(fresh "clean ws")
@@ -102,5 +102,24 @@ assert_contains "$out" "warn env-ignored" "nested unignored"
 assert_contains "$out" "app/.env.local" "names nested file"
 t=$(fresh envnogit); printf 'K=1\n' > "$t/.env"; doc "$t"
 assert_contains "$out" "ok   env-ignored" "not a git repo: cannot be committed"
+
+CASE=hidden-unicode
+t=$(fresh hu1)
+printf 'Normal line\n\363\240\201\201\363\240\201\202 hidden tag chars\n' >> "$t/AGENTS.md"
+doc "$t"
+assert_contains "$out" "warn no-hidden-unicode" "tag characters"
+assert_contains "$out" "AGENTS.md" "names the file"
+t=$(fresh hu2)
+printf 'abc\342\200\256def\n' >> "$t/docs/agent/STATUS.md"
+doc "$t"
+assert_contains "$out" "warn no-hidden-unicode" "bidi override"
+t=$(fresh hu3)
+printf 'zero\342\200\213width\n' >> "$t/.agentkit.local/overrides.md"
+doc "$t"
+assert_contains "$out" "warn no-hidden-unicode" "zero-width space"
+t=$(fresh hu4)
+printf 'Plain UTF-8 is fine: caf\303\251, \342\206\222, \342\211\244 40 lines\n' >> "$t/docs/agent/STATUS.md"
+doc "$t"
+assert_contains "$out" "ok   no-hidden-unicode" "ordinary unicode ok"
 
 summary

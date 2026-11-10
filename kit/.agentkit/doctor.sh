@@ -111,5 +111,15 @@ fi
 if [ -z "$unignored" ]; then ok env-ignored
 else warn env-ignored "not git-ignored, could be committed:$unignored (add to .gitignore)"; fi
 
+# no-hidden-unicode: invisible characters that can hide instructions in agent files
+# (Unicode tag characters, zero-width characters, bidirectional controls). One grep, fixed byte patterns.
+UPAT=$(printf '\363\240\200\n\363\240\201\n\342\200\213\n\342\200\214\n\342\200\215\n\342\200\216\n\342\200\217\n\342\201\240\n\342\200\252\n\342\200\253\n\342\200\254\n\342\200\255\n\342\200\256\n\342\201\246\n\342\201\247\n\342\201\250\n\342\201\251')
+hits_u=$( {
+  find "$W" -maxdepth 1 -type f \( -name AGENTS.md -o -name CLAUDE.md -o -name GEMINI.md \) -exec env LC_ALL=C grep -lF -e "$UPAT" {} +
+  for d in "$W/.agentkit.local" "$M"; do [ -d "$d" ] && find "$d" -type f -exec env LC_ALL=C grep -lF -e "$UPAT" {} +; done
+} 2>/dev/null | while IFS= read -r f; do printf ' %s' "${f#"$W/"}"; done )
+if [ -z "$hits_u" ]; then ok no-hidden-unicode
+else warn no-hidden-unicode "invisible or bidi characters in:$hits_u (could hide instructions; inspect and remove)"; fi
+
 echo "doctor: $WARN warning(s)"
 [ "$WARN" -eq 0 ]
