@@ -18,7 +18,7 @@ B="$W/.agentkit.local/budgets.env"
 if [ -f "$B" ]; then
   # Only accept KEY=NUMBER lines for known keys; never execute the file.
   for k in RING0_MAX_BYTES AGENTS_MAX_LINES STATUS_MAX_LINES DECISIONS_MAX_LINES LOG_MAX_BYTES; do
-    v=$(tr -d '\r' < "$B" | sed -n "s/^[[:space:]]*$k=\([0-9][0-9]*\)[[:space:]]*\$/\1/p" | tail -n 1)
+    v=$(tr -d '\r' < "$B" | sed -n "s/^[[:space:]]*$k=\([0-9]\{1,18\}\)[[:space:]]*\(#.*\)\{0,1\}\$/\1/p" | tail -n 1)
     [ -n "$v" ] && eval "$k=$v"
   done
 fi
@@ -35,9 +35,12 @@ else warn kit-installed ".agentkit/VERSION missing; reinstall the kit"; fi
 
 # kit-markers
 A="$W/AGENTS.md"
-if [ -f "$A" ] && tr -d '\r' < "$A" | grep -qx '<!-- agentkit:start -->' \
-   && tr -d '\r' < "$A" | grep -qx '<!-- agentkit:end -->'; then ok kit-markers
-else warn kit-markers "AGENTS.md missing or has no kit block; see .agentkit/playbooks/adopt.md"; fi
+# Same rule as the installer: exactly one start marker before exactly one end marker.
+if [ -f "$A" ] && tr -d '\r' < "$A" | awk '
+    $0 == "<!-- agentkit:start -->" { ns++; if (ne == 0) sl = NR }
+    $0 == "<!-- agentkit:end -->"   { ne++; el = NR }
+    END { exit !(ns == 1 && ne == 1 && sl < el) }'; then ok kit-markers
+else warn kit-markers "AGENTS.md missing, or its kit markers are missing or duplicated, so updates can't refresh it; see .agentkit/playbooks/adopt.md"; fi
 
 # stubs
 for pair in claude:CLAUDE.md gemini:GEMINI.md; do
@@ -88,10 +91,11 @@ if [ -z "$multi" ]; then ok tracker-single-doing
 else warn tracker-single-doing "more than one 'doing' task in:$multi"; fi
 
 # no-secrets (file names only, never the match)
-PAT='sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|AIza[0-9A-Za-z_-]{35}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+# Key prefixes need a left boundary so words like "task-tracking-..." don't match.
+PAT='(^|[^A-Za-z0-9_-])(sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{30,}|AIza[0-9A-Za-z_-]{35}|xox[baprs]-[A-Za-z0-9-]{10,})|-----BEGIN [A-Z ]*PRIVATE KEY-----'
 hits=""
-for d in "$M" "$W/.agentkit.local"; do
-  [ -d "$d" ] || continue
+for d in "$W/AGENTS.md" "$W/CLAUDE.md" "$W/GEMINI.md" "$M" "$W/.agentkit.local"; do
+  [ -e "$d" ] || continue
   hits="$hits$(grep -rlE -- "$PAT" "$d" 2>/dev/null | while IFS= read -r f; do printf ' %s' "${f#"$W/"}"; done)"
 done
 if [ -z "$hits" ]; then ok no-secrets

@@ -19,5 +19,5 @@ Status: `todo`, `doing`, `done`, `blocked (reason)`, `dropped (reason)`
 | T-11 | CI | done | 2fdf7f7 |
 | T-15 | Security rulebook | done | 51b65f1 |
 | T-12 | Public docs | done | 1cee548 |
-| T-13 | Example workspace | done | (this) |
+| T-13 | Example workspace | done | 6f71d44 |
 | T-14 | Final verification and release | doing | |

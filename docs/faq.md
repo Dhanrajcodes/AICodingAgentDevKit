@@ -4,7 +4,7 @@
 No. The kit is markdown. The installers need `sh` (macOS, Linux, Git Bash) or PowerShell 5.1+, and you can skip them entirely by asking an agent to follow `INSTALL.md`.
 
 **Does it slow agents down or cost more tokens?**
-It costs about 5.5 KB at session start and saves far more by ending re-explanation, re-reading of whole folders and repeated mistakes. Everything else loads only when a task needs it. See [token-budget.md](token-budget.md).
+It costs about 5.7 KB at session start and saves far more by ending re-explanation, re-reading of whole folders and repeated mistakes. Everything else loads only when a task needs it. See [token-budget.md](token-budget.md).
 
 **Can I use it on an existing project?**
 Yes. Existing files are never overwritten; the adopt playbook migrates them with your approval. See [adopting.md](adopting.md).

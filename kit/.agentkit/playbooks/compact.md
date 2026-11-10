@@ -10,6 +10,7 @@ Use when doctor warns about size, when STATUS or DECISIONS feels long, or at the
 ## LOG.md (rotate past about 24 KB)
 - Move every entry from earlier months to `docs/agent/log/<YYYY-MM>.md`, one file per month, in order. Moving, not rewriting: entries stay byte-for-byte.
 - Leave the current month in `LOG.md` with a line at the top: `Older entries: docs/agent/log/`.
+- If the current month alone is over budget, the entries are too long: keep new ones to the template's five lines, or raise `LOG_MAX_BYTES` in `.agentkit.local/budgets.env`.
 
 ## DECISIONS.md (limit about 80 lines)
 - Each row one short line. Move long reasons into `decisions/D-NNNN-<slug>.md` and link it.

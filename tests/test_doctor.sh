@@ -122,4 +122,26 @@ printf 'Plain UTF-8 is fine: caf\303\251, \342\206\222, \342\211\244 40 lines\n'
 doc "$t"
 assert_contains "$out" "ok   no-hidden-unicode" "ordinary unicode ok"
 
+CASE=budget-comments
+t=$(fresh b1); printf 'AGENTS_MAX_LINES=10      # trailing comment\n' >> "$t/.agentkit.local/budgets.env"; doc "$t"
+assert_contains "$out" "warn agents-lines" "budget with trailing comment honoured"
+
+CASE=budget-huge
+t=$(fresh b2); printf 'RING0_MAX_BYTES=99999999999999999999\n' >> "$t/.agentkit.local/budgets.env"; doc "$t"
+assert_contains "$out" "ok   ring0-size" "oversized budget ignored, default kept"
+assert_contains "$out" "doctor: 0 warning(s)" "no crash"
+
+CASE=secret-false-positive
+t=$(fresh s1); printf '\n## 2026-01-01: plans/2026-11-12-task-tracking-dashboard-redesign/\n' >> "$t/docs/agent/LOG.md"
+sedi 's/^Last updated: .*/Last updated: 2026-12-31/' "$t/docs/agent/STATUS.md"; doc "$t"
+assert_contains "$out" "ok   no-secrets" "words ending in sk are not keys"
+
+CASE=secret-in-agents
+t=$(fresh s2); printf 'token sk-proj-abcdefghijklmnopqrstuvwx1234\n' >> "$t/AGENTS.md"; doc "$t"
+assert_contains "$out" "warn no-secrets" "AGENTS.md scanned"
+
+CASE=duplicate-markers
+t=$(fresh m1); sed -n '/agentkit:start/,/agentkit:end/p' "$t/AGENTS.md" >> "$t/AGENTS.md"; doc "$t"
+assert_contains "$out" "warn kit-markers" "duplicate block"
+
 summary

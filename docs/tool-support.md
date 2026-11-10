@@ -5,7 +5,7 @@ The kit's single source of truth is `AGENTS.md`, the open standard stewarded by 
 | Tool | Setup | Notes |
 |---|---|---|
 | **Claude Code** | `CLAUDE.md` containing `@AGENTS.md` (installed) | Claude Code reads `CLAUDE.md`; the import pulls in `AGENTS.md`. Don't put rules in `CLAUDE.md` itself. |
-| **Codex (OpenAI)** | None | Reads `AGENTS.md` natively and merges nested ones from the root down. Combined size is capped at 32 KiB; the kit's ring 0 is about 5.5 KB. |
+| **Codex (OpenAI)** | None | Reads `AGENTS.md` natively and merges nested ones from the root down. Combined size is capped at 32 KiB; the kit's ring 0 is about 5.7 KB. |
 | **Gemini CLI** | `GEMINI.md` containing `@AGENTS.md` (installed) | Doesn't read `AGENTS.md` by default. Alternatively set `"context": {"fileName": ["AGENTS.md", "GEMINI.md"]}` in its settings. |
 | **Antigravity** | `GEMINI.md` stub (installed) | Native `AGENTS.md` support wasn't confirmed when this was written; the stub covers it. |
 | **Cursor** | None | Reads `AGENTS.md`, including nested files. `.cursor/rules/*.mdc` stays available for glob-scoped rules. |

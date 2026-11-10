@@ -4,10 +4,10 @@
 
 [![CI](https://github.com/Dhanrajcodes/AICodingAgentDevKit/actions/workflows/ci.yml/badge.svg)](https://github.com/Dhanrajcodes/AICodingAgentDevKit/actions/workflows/ci.yml)
 ![Version](https://img.shields.io/badge/version-1.0.0-2f6feb)
-![License](https://img.shields.io/badge/license-personal%20use-555)
+![License](https://img.shields.io/badge/license-custom-555)
 ![Agents](https://img.shields.io/badge/works%20with-Claude%20Code%20%C2%B7%20Codex%20%C2%B7%20Gemini%20%C2%B7%20Cursor%20%C2%B7%20Copilot-555)
 
-Plain markdown and two tiny scripts. No runtime, no server, no vendor lock-in. Install it once at a workspace root; from then on, Claude Code, Codex, Gemini CLI, Antigravity, Cursor, Copilot, Windsurf or Cline all read the same rules and the same project memory.
+Plain markdown plus small install and check scripts. No runtime, no server, no vendor lock-in. Install it once at a workspace root; from then on, Claude Code, Codex, Gemini CLI, Antigravity, Cursor, Copilot, Windsurf or Cline all read the same rules and the same project memory.
 
 ---
 
@@ -24,7 +24,7 @@ AI coding agents write code quickly, but on real projects they fail in three pre
 ## What the kit does
 
 - **Memory in files, not chat.** A small, fixed set of files holds the current state, an append-only log, settled decisions, open questions and resumable plans. Any agent in a fresh chat continues from them. Say "resume", not three paragraphs of context.
-- **Token budget by design.** A new session reads about **5.5 KB** (entry file, status, decisions index). The rest of the kit, about **110 KB** of rules, playbooks, checklists and templates, sits behind an index and is read only when a task needs it. A doctor script warns when memory files grow past budget.
+- **Token budget by design.** A new session reads about **5.7 KB** (entry file, status, decisions index). The rest of the kit, about **110 KB** of rules, playbooks, checklists and templates, sits behind an index and is read only when a task needs it. A doctor script warns when memory files grow past budget.
 - **Process that scales with the task.** A typo gets "do it, verify it, log a line". A feature gets a spec, a plan and a tracker that survives a switch to another AI tool mid-task. Agents pick the tier and say it.
 - **Proof, not claims.** Claims are labelled verified, inferred or unverified. "Done" needs command output or a screenshot path that exists on disk. Packages and APIs are checked against the installed version before use.
 - **Production quality bars.** Engineering, backend, frontend and UI rules aimed at the defects AI agents actually introduce, including a banned list of AI-slop UI and copy patterns.
@@ -124,6 +124,7 @@ It checks token budgets, forgotten handoffs, more than one task in progress, sec
 | Tool | How it picks up the kit |
 |---|---|
 | Codex, Cursor, GitHub Copilot, Windsurf, Cline, Kiro, Zed, Jules, Amp | Read `AGENTS.md` natively |
+| Aider | `read: AGENTS.md` in `.aider.conf.yml` |
 | Claude Code | `CLAUDE.md` → `@AGENTS.md` |
 | Gemini CLI, Antigravity | `GEMINI.md` → `@AGENTS.md` |
 | Anything else | Tell it to read `AGENTS.md` first |

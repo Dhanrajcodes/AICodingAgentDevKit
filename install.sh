@@ -25,27 +25,39 @@ done
 [ -n "$TARGET" ] || usage
 [ -d "$TARGET" ] || { echo "error: target folder not found: $TARGET" >&2; exit 2; }
 
-SRC=$(cd "$(dirname "$0")/kit" && pwd)
+SRC=$(cd "$(dirname "$0")/kit" && pwd -P)
 KIT="$SRC/.agentkit"
 TPL="$KIT/templates"
 VERSION=$(tr -d '\r\n' < "$KIT/VERSION")
 START='<!-- agentkit:start -->'
 END='<!-- agentkit:end -->'
+TARGET=$(cd "$TARGET" && pwd -P)
 
 say() { if [ "$DRY" -eq 1 ]; then echo "would: $*"; else echo "$*"; fi; }
 
-# 1. Guard: never delete a .agentkit folder that isn't ours.
-if [ -d "$TARGET/.agentkit" ] && [ ! -f "$TARGET/.agentkit/VERSION" ]; then
-  echo "error: $TARGET/.agentkit exists but is not a kit install (no VERSION file)." >&2
-  echo "Move or rename it, then run the installer again. Nothing was changed." >&2
-  exit 3
+# 1. Guards: never delete anything that isn't a kit install, and never the kit's own payload.
+TK="$TARGET/.agentkit"
+if [ -e "$TK" ] || [ -L "$TK" ]; then
+  if [ ! -d "$TK" ] || [ -L "$TK" ] || [ ! -f "$TK/VERSION" ]; then
+    echo "error: $TK exists but is not a kit install (not a folder, a link, or no VERSION file)." >&2
+    echo "Move or rename it, then run the installer again. Nothing was changed." >&2
+    exit 3
+  fi
 fi
+case "$KIT/" in
+  "$TK/"*|"$TARGET/") echo "error: the target is the kit's own payload folder ($SRC). Install into your workspace instead. Nothing was changed." >&2; exit 3 ;;
+esac
+case "$TK/" in
+  "$SRC/"*) echo "error: the target is inside the kit's payload folder ($SRC). Nothing was changed." >&2; exit 3 ;;
+esac
 
-# 2. Kit core: replace whole.
-if [ -d "$TARGET/.agentkit" ]; then action=updated; else action=created; fi
+# 2. Kit core: copy to a staging folder, then swap, so a failed copy never leaves the workspace without a kit.
+if [ -d "$TK" ]; then action=updated; else action=created; fi
 if [ "$DRY" -eq 0 ]; then
-  rm -rf "$TARGET/.agentkit"
-  cp -R "$KIT" "$TARGET/.agentkit"
+  rm -rf "$TK.agentkit-new"
+  cp -R "$KIT" "$TK.agentkit-new"
+  rm -rf "$TK"
+  mv "$TK.agentkit-new" "$TK"
 fi
 say "$action .agentkit/ (v$VERSION)"
 
@@ -66,7 +78,8 @@ elif has_markers "$A"; then
   if [ "$DRY" -eq 0 ]; then
     tmp="$A.agentkit-tmp"
     # Keep the target's line endings outside the block; write the new block in the same style.
-    if grep -q "$(printf '\r')" "$A"; then cr=1; else cr=0; fi
+    # (Count CR bytes with tr: Git for Windows grep strips CR in text mode.)
+    if [ "$(tr -cd '\r' < "$A" | wc -c)" -gt 0 ]; then cr=1; else cr=0; fi
     tr -d '\r' < "$A" | awk -v s="$START" -v e="$END" -v blk="$TPL/AGENTS.md" '
       BEGIN { while ((getline l < blk) > 0) { sub(/\r$/, "", l); if (l == s) inb = 1; if (inb) b = b l "\n"; if (l == e) inb = 0 } }
       $0 == s { printf "%s", b; skip = 1; next }

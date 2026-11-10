@@ -15,7 +15,7 @@ Use when finishing a task, before pausing, when switching tools, or when the cha
    - Remove anything that is history; that's in LOG.
 4. **Decisions:** log every new choice with `playbooks/log-decision.md`.
 5. **Open questions:** add new ones to `OPEN-QUESTIONS.md`; delete answered ones (the answer becomes a decision).
-6. **Check:** no secrets, tokens or real personal data in anything you wrote. Run doctor if a shell is available (`sh .agentkit/doctor.sh` or `powershell -File .agentkit/doctor.ps1`) and fix what it flags.
+6. **Check:** no secrets, tokens or real personal data in anything you wrote. Run doctor if a shell is available (`sh .agentkit/doctor.sh` or `powershell -ExecutionPolicy Bypass -File .agentkit/doctor.ps1`) and fix what it flags.
 7. **Commit** if the project commits memory files, with a message like `docs(agent): handoff after T-07`.
 8. **Tell the user** in one or two lines what was saved and whether a fresh session is a good idea now.
 

@@ -19,7 +19,7 @@ for f in "$K"/rules/*.md "$K"/playbooks/*.md "$K"/security/*.md "$K"/security/ch
 done
 
 CASE=index-links
-for p in $(grep -o '\(rules\|playbooks\|templates\|security\)/[A-Za-z/-]*\.md' "$K/INDEX.md" | sort -u); do
+for p in $(grep -oE '(rules|playbooks|templates|security)/[A-Za-z/-]*\.md' "$K/INDEX.md" | sort -u); do
   assert_file "$K/$p"
 done
 for f in "$K"/rules/*.md "$K"/playbooks/*.md "$K"/security/*.md "$K"/security/checklists/*.md; do
@@ -28,7 +28,7 @@ for f in "$K"/rules/*.md "$K"/playbooks/*.md "$K"/security/*.md "$K"/security/ch
 done
 
 CASE=cross-refs
-for p in $(cat "$K"/rules/*.md "$K"/playbooks/*.md "$K"/security/*.md "$K"/security/checklists/*.md "$K/templates/AGENTS.md" | grep -o '\(docs/agent/\)\{0,1\}\(rules\|playbooks\|templates\|security\)/[a-z/-]*\.md' | grep -v '^docs/agent/' | sort -u); do
+for p in $(cat "$K"/rules/*.md "$K"/playbooks/*.md "$K"/security/*.md "$K"/security/checklists/*.md "$K/templates/AGENTS.md" | grep -oE '(docs/agent/)?(rules|playbooks|templates|security)/[a-z/-]*\.md' | grep -v '^docs/agent/' | sort -u); do
   assert_file "$K/$p"
 done
 # Checklist names referenced from inside security/ (relative, e.g. `checklists/api-input.md` or `api-input.md`)

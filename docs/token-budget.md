@@ -5,10 +5,10 @@ Every token an agent loads is paid for again on every later turn of the session,
 ## Measured (v1.0.0, fresh install)
 | Ring | What | Size |
 |---|---|---|
-| 0: every session | `AGENTS.md` (66 lines; kit block 47), `STATUS.md`, `DECISIONS.md` | ~5.5 KB |
+| 0: every session | `AGENTS.md` (67 lines; kit block 48), `STATUS.md`, `DECISIONS.md` | ~5.7 KB |
 | 1: by task | The few rules or playbooks `INDEX.md` names for the task | typically 2-10 KB |
 | 2: by need | One decision file, one spec section, one checklist, one source range | as needed |
-| Never loaded at once | The whole kit: 9 rules, 12 playbooks, 13 security checklists, 15 templates | ~114 KB |
+| Never loaded at once | The whole kit: 9 rules, 12 playbooks, 13 security checklists, 15 templates | ~115 KB |
 
 `tests/test_kit.sh` fails the build if ring 0 passes 8 KB, the kit block passes 70 lines, or any rule, playbook or checklist passes 150 lines.
 

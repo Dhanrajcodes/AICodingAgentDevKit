@@ -21,7 +21,7 @@ $Budget = [ordered]@{
 $B = Join-Path $W '.agentkit.local\budgets.env'
 if (Test-Path -LiteralPath $B) {
     foreach ($line in [IO.File]::ReadAllLines($B)) {
-        $bm = [regex]::Match($line, '^\s*([A-Z0-9_]+)=([0-9]+)\s*$')
+        $bm = [regex]::Match($line, '^\s*([A-Z0-9_]+)=([0-9]{1,18})\s*(#.*)?$')
         if ($bm.Success -and $Budget.Contains($bm.Groups[1].Value)) { $Budget[$bm.Groups[1].Value] = [int64]$bm.Groups[2].Value }
     }
 }
@@ -45,8 +45,11 @@ else { Warn 'kit-installed' '.agentkit/VERSION missing; reinstall the kit' }
 # kit-markers
 $A = Join-Path $W 'AGENTS.md'
 $at = Get-Text $A
-if ($at -match '(?m)^<!-- agentkit:start -->\r?$' -and $at -match '(?m)^<!-- agentkit:end -->\r?$') { Ok 'kit-markers' }
-else { Warn 'kit-markers' 'AGENTS.md missing or has no kit block; see .agentkit/playbooks/adopt.md' }
+# Same rule as the installer: exactly one start marker before exactly one end marker.
+$sMarks = [regex]::Matches($at, '(?m)^<!-- agentkit:start -->\r?$')
+$eMarks = [regex]::Matches($at, '(?m)^<!-- agentkit:end -->\r?$')
+if ($sMarks.Count -eq 1 -and $eMarks.Count -eq 1 -and $sMarks[0].Index -lt $eMarks[0].Index) { Ok 'kit-markers' }
+else { Warn 'kit-markers' "AGENTS.md missing, or its kit markers are missing or duplicated, so updates can't refresh it; see .agentkit/playbooks/adopt.md" }
 
 # stubs
 foreach ($pair in @(@('stub-claude', 'CLAUDE.md'), @('stub-gemini', 'GEMINI.md'))) {
@@ -101,11 +104,12 @@ if (-not $multi) { Ok 'tracker-single-doing' }
 else { Warn 'tracker-single-doing' "more than one 'doing' task in:$multi" }
 
 # no-secrets (file names only, never the match)
-$Pat = 'sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|AIza[0-9A-Za-z_-]{35}|xox[baprs]-[A-Za-z0-9-]{10,}|-----BEGIN [A-Z ]*PRIVATE KEY-----'
+# Key prefixes need a left boundary so words like "task-tracking-..." don't match.
+$Pat = '(?m)(^|[^A-Za-z0-9_-])(sk-[A-Za-z0-9_-]{20,}|AKIA[0-9A-Z]{16}|ghp_[A-Za-z0-9]{36}|github_pat_[A-Za-z0-9_]{30,}|AIza[0-9A-Za-z_-]{35}|xox[baprs]-[A-Za-z0-9-]{10,})|-----BEGIN [A-Z ]*PRIVATE KEY-----'
 $hits = ''
-foreach ($d in @($M, (Join-Path $W '.agentkit.local'))) {
+foreach ($d in @((Join-Path $W 'AGENTS.md'), (Join-Path $W 'CLAUDE.md'), (Join-Path $W 'GEMINI.md'), $M, (Join-Path $W '.agentkit.local'))) {
     if (-not (Test-Path -LiteralPath $d)) { continue }
-    foreach ($f in Get-ChildItem -LiteralPath $d -Recurse -File -Force) {
+    foreach ($f in @(Get-ChildItem -LiteralPath $d -Recurse -File -Force)) {
         if ([regex]::IsMatch((Get-Text $f.FullName), $Pat)) { $hits += " $(Get-Rel $f.FullName)" }
     }
 }

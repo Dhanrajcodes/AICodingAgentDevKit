@@ -15,9 +15,9 @@ Add one row to `docs/agent/DECISIONS.md`:
 2. Add the index row with a link: `| D-0042 | Use Postgres for jobs ([detail](decisions/D-0042-postgres-jobs.md)) | owner |`
 
 ## "By" must be honest
-- `owner` or `user`: the human said it in so many words.
+- `owner`: the human said it in so many words.
 - `doc`: it's written in the project's requirement docs.
-- `agent (proposed)`: you chose it. It stays `proposed` until the human confirms. Then change it to `owner (confirmed)`.
+- `agent (proposed)`: you chose it. It stays `proposed` until the human confirms. Then change "By" to `owner (confirmed)`: the one edit a decision row may get.
 
 Never record your call as the human's. Never write "the team agreed" unless they did.
 

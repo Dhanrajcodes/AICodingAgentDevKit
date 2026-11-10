@@ -60,3 +60,13 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 ## 2026-11-10: T-13 example workspace
 - Changed: examples/sample-workspace (fictional invoicing SaaS after three sessions: mid-task STATUS, evidence-backed LOG, decision index plus one full record, research by experiment, a feature plan with a doing and a blocked task).
 - Evidence: new kit test installs the kit over a copy of the example, confirms memory is kept and the block refreshed, and doctor exits 0; the example kit block must match the template. `bash tests/run.sh` → 178/55/48 pass.
+
+## 2026-11-10: T-14 review and fix pass
+- Fresh independent review (separate agent, whole repo). Findings fixed, each with a test that failed first:
+  - Critical: installing into the kit's own `kit/` folder deleted the payload. Both installers now resolve paths and refuse (exit 3); the copy is staged and swapped so a failed copy never leaves a workspace without a kit.
+  - Important: a *file* named `.agentkit` was deleted by `install.sh` (now exit 3, as in `.ps1`; links refused too). CRLF `AGENTS.md` came out LF on Git Bash (grep strips CR; CR is now counted with `tr`). Budget lines with trailing comments were ignored. The `sk-` secret pattern matched words like "task-tracking" (left boundary added). Duplicate kit markers passed the doctor while the installer refused them (one shared rule now). The macOS CI job replaced BSD sed with GNU sed (removed). `install.ps1` ignored extra arguments (now exit 2).
+  - Minor, fixed: oversized budget values crashed `doctor.ps1` (capped at 18 digits); root `AGENTS.md`/stubs are now scanned for secrets; doctor commands carry `-ExecutionPolicy Bypass`; `agent (proposed)` decisions are no longer described as settled; security exception stated in `.agentkit.local/README.md`; `docs/agent/security/` added to the memory table; SR-17 says pseudonymous IDs; stale paths, sizes and badge fixed; kit tests use ERE greps for macOS.
+  - Minor, deferred: UTF-8 BOM on a marker first line (sh says adopt, ps1 updates); a final newline is added to files that lack one; env-ignored depth 3 and `.envrc` / `.env.local.example` handling; nested `AGENTS.md` and `.github/copilot-instructions.md` not scanned for hidden Unicode.
+- Trial: installed into a copy of a real multi-repo workspace with its own harness. User files kept, entry file reported `adopt`; doctor flagged its 66 KB ring 0 and oversized STATUS and DECISIONS.
+- Evidence: `bash tests/run.sh` → kit 178/178, install.sh 63/63, doctor.sh 54/54; `tests/run.ps1` → install.ps1 61/61, doctor.ps1 54/54.
+- Sizes after fixes: ring 0 = 5701 bytes, kit block 48 lines, payload markdown 114866 bytes.

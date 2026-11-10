@@ -95,4 +95,33 @@ Assert-Eq $r.Code 2 'exit'
 $r = Invoke-Script $Install @()
 Assert-Eq $r.Code 2 'no args'
 
+$Case = 'crlf-preserved'
+$t = New-Target 'crlf2'
+$null = Invoke-Script $Install @('-Target', $t)
+$a = Join-Path $t 'AGENTS.md'
+Write-Text $a ((Read-Text $a).Replace("`n", "`r`n"))
+$lines = ([regex]::Matches((Read-Text $a), "`n")).Count
+$null = Invoke-Script $Install @('-Target', $t)
+Assert-Eq ([regex]::Matches((Read-Text $a), "`r`n")).Count $lines 'every line keeps CRLF'
+
+$Case = 'agentkit-is-a-file'
+$t = New-Target 'filekit'
+Write-Text (Join-Path $t '.agentkit') "data`n"
+$r = Invoke-Script $Install @('-Target', $t)
+Assert-Eq $r.Code 3 'exit'
+Assert-Eq (Read-Text (Join-Path $t '.agentkit')) "data`n" 'file untouched'
+
+$Case = 'target-is-kit-payload'
+$c = New-Target 'kitcopy'
+Copy-Item -LiteralPath $Install -Destination $c
+Copy-Item -LiteralPath (Join-Path $Root 'kit') -Destination (Join-Path $c 'kit') -Recurse
+$r = Invoke-Script (Join-Path $c 'install.ps1') @('-Target', (Join-Path $c 'kit'))
+Assert-Eq $r.Code 3 'exit'
+Assert-File (Join-Path $c 'kit\.agentkit\VERSION')
+
+$Case = 'extra-arg'
+$t = New-Target 'extra'
+$r = Invoke-Script $Install @('-Target', $t, 'surplus')
+Assert-Eq $r.Code 2 'unexpected extra argument'
+
 if (-not (Show-Summary 'install.ps1')) { exit 1 }

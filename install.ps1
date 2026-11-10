@@ -5,7 +5,8 @@
 # Copyright (c) 2026 Dhanraj Singh. See LICENSE. ASCII only.
 param(
     [string]$Target = '',
-    [switch]$DryRun
+    [switch]$DryRun,
+    [Parameter(ValueFromRemainingArguments = $true)][string[]]$Rest
 )
 $ErrorActionPreference = 'Stop'
 
@@ -15,14 +16,15 @@ function Show-Usage {
     exit 2
 }
 
+if ($Rest -and $Rest.Count -gt 0) { [Console]::Error.WriteLine("unexpected argument: $($Rest -join ' ')"); Show-Usage }
 if (-not $Target) { Show-Usage }
 if (-not (Test-Path -LiteralPath $Target -PathType Container)) {
     [Console]::Error.WriteLine("error: target folder not found: $Target")
     exit 2
 }
-$Target = (Resolve-Path -LiteralPath $Target).ProviderPath
+$Target = (Resolve-Path -LiteralPath $Target).ProviderPath.TrimEnd('\', '/')
 
-$Src = Join-Path $PSScriptRoot 'kit'
+$Src = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot 'kit')).ProviderPath.TrimEnd('\', '/')
 $Kit = Join-Path $Src '.agentkit'
 $Tpl = Join-Path $Kit 'templates'
 $Version = ([IO.File]::ReadAllText((Join-Path $Kit 'VERSION'))).Trim()
@@ -53,19 +55,33 @@ function Find-Markers([string[]]$Lines) {
     return $null
 }
 
-# 1. Guard: never delete a .agentkit folder that isn't ours.
+# 1. Guards: never delete anything that isn't a kit install, and never the kit's own payload.
 $TKit = Join-Path $Target '.agentkit'
-if ((Test-Path -LiteralPath $TKit) -and -not (Test-Path -LiteralPath (Join-Path $TKit 'VERSION'))) {
-    [Console]::Error.WriteLine("error: $TKit exists but is not a kit install (no VERSION file).")
-    [Console]::Error.WriteLine('Move or rename it, then run the installer again. Nothing was changed.')
+if (Test-Path -LiteralPath $TKit) {
+    $item = Get-Item -LiteralPath $TKit -Force
+    $isLink = [bool]($item.Attributes -band [IO.FileAttributes]::ReparsePoint)
+    if (-not $item.PSIsContainer -or $isLink -or -not (Test-Path -LiteralPath (Join-Path $TKit 'VERSION'))) {
+        [Console]::Error.WriteLine("error: $TKit exists but is not a kit install (not a folder, a link, or no VERSION file).")
+        [Console]::Error.WriteLine('Move or rename it, then run the installer again. Nothing was changed.')
+        exit 3
+    }
+}
+$kitSlash = $Kit.ToLowerInvariant() + '\'
+$tkSlash = $TKit.ToLowerInvariant() + '\'
+$srcSlash = $Src.ToLowerInvariant() + '\'
+if ($kitSlash.StartsWith($tkSlash) -or ($Target.ToLowerInvariant() + '\') -eq $srcSlash -or $tkSlash.StartsWith($srcSlash)) {
+    [Console]::Error.WriteLine("error: the target is the kit's own payload folder ($Src). Install into your workspace instead. Nothing was changed.")
     exit 3
 }
 
-# 2. Kit core: replace whole.
+# 2. Kit core: copy to a staging folder, then swap, so a failed copy never leaves the workspace without a kit.
 $action = if (Test-Path -LiteralPath $TKit) { 'updated' } else { 'created' }
 if (-not $DryRun) {
+    $staging = "$TKit.agentkit-new"
+    if (Test-Path -LiteralPath $staging) { Remove-Item -LiteralPath $staging -Recurse -Force }
+    Copy-Item -LiteralPath $Kit -Destination $staging -Recurse
     if (Test-Path -LiteralPath $TKit) { Remove-Item -LiteralPath $TKit -Recurse -Force }
-    Copy-Item -LiteralPath $Kit -Destination $TKit -Recurse
+    Move-Item -LiteralPath $staging -Destination $TKit
 }
 Say "$action .agentkit/ (v$Version)"
 

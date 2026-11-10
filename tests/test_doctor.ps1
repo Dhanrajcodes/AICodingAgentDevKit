@@ -134,4 +134,33 @@ Assert-Contains $r.Out 'warn no-hidden-unicode' 'zero-width space'
 $t = New-Fresh 'hu4'; Add-Text (Join-Path $t 'docs\agent\STATUS.md') ("Plain UTF-8 is fine: caf" + [char]0xE9 + ", " + [char]0x2192 + "`n"); $r = Invoke-Doctor $t
 Assert-Contains $r.Out 'ok   no-hidden-unicode' 'ordinary unicode ok'
 
+$Case = 'budget-comments'
+$t = New-Fresh 'b1'; Add-Text (Join-Path $t '.agentkit.local\budgets.env') "AGENTS_MAX_LINES=10      # trailing comment`n"; $r = Invoke-Doctor $t
+Assert-Contains $r.Out 'warn agents-lines' 'budget with trailing comment honoured'
+
+$Case = 'budget-huge'
+$t = New-Fresh 'b2'; Add-Text (Join-Path $t '.agentkit.local\budgets.env') "RING0_MAX_BYTES=99999999999999999999`n"; $r = Invoke-Doctor $t
+Assert-Contains $r.Out 'ok   ring0-size' 'oversized budget ignored'
+Assert-Contains $r.Out 'doctor: 0 warning(s)' 'no crash'
+
+$Case = 'secret-false-positive'
+$t = New-Fresh 's1'
+Add-Text (Join-Path $t 'docs\agent\LOG.md') "`n## 2026-01-01: plans/2026-11-12-task-tracking-dashboard-redesign/`n"
+Set-StatusDate (Join-Path $t 'docs\agent\STATUS.md') '2026-12-31'
+$r = Invoke-Doctor $t
+Assert-Contains $r.Out 'ok   no-secrets' 'words ending in sk are not keys'
+
+$Case = 'secret-in-agents'
+$t = New-Fresh 's2'; Add-Text (Join-Path $t 'AGENTS.md') "token sk-proj-abcdefghijklmnopqrstuvwx1234`n"; $r = Invoke-Doctor $t
+Assert-Contains $r.Out 'warn no-secrets' 'AGENTS.md scanned'
+
+$Case = 'duplicate-markers'
+$t = New-Fresh 'm1'
+$a = Join-Path $t 'AGENTS.md'
+$txt = Read-Text $a
+$blk = $txt.Substring(0, $txt.IndexOf('<!-- agentkit:end -->') + '<!-- agentkit:end -->'.Length)
+Add-Text $a ($blk + "`n")
+$r = Invoke-Doctor $t
+Assert-Contains $r.Out 'warn kit-markers' 'duplicate block'
+
 if (-not (Show-Summary 'doctor.ps1')) { exit 1 }

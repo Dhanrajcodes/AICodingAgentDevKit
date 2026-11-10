@@ -17,4 +17,4 @@ The `.agentkit/` folder is left out; it is exactly `kit/.agentkit/` from this re
 | `docs/agent/OPEN-QUESTIONS.md` | A question blocking a task, and an out-of-scope finding parked instead of fixed |
 | `.agentkit.local/overrides.md` | A one-line local override |
 
-A new chat in any tool would read `AGENTS.md`, STATUS and DECISIONS (about 6 KB), then the tracker, and continue T-03 without a word of explanation.
+A new chat in any tool would read `AGENTS.md`, STATUS and DECISIONS (about 7 KB), then the tracker, and continue T-03 without a word of explanation.

@@ -34,7 +34,7 @@ Non-negotiable security rules for anything that will reach real users, real data
 
 **Failure and visibility**
 - **SR-16** Errors never leak stack traces, queries, secrets or internals to users. Fail closed: when a security check errors, deny.
-- **SR-17** Security events (sign-in success and failure, permission denials, admin actions, data exports) are logged with who, what, when, without secrets or personal data.
+- **SR-17** Security events (sign-in success and failure, permission denials, admin actions, data exports) are logged with who (a pseudonymous user ID), what and when, with no secrets and no other personal data.
 
 **Process**
 - **SR-18** No security control (auth check, validation, CSRF, CSP, rate limit, TLS verification, scanner, CI gate) is disabled, bypassed or weakened to make something work or pass.

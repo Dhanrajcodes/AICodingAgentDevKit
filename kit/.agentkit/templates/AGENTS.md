@@ -4,7 +4,7 @@
 Read this first. It applies to every AI agent in this workspace (Claude, Codex, Gemini, Cursor, Copilot or any other). The section between the agentkit markers is managed by the AI Coding Agent Dev Kit; edit the project section below it instead.
 
 ## Start of every session
-1. Read `docs/agent/STATUS.md` (where things stand) and `docs/agent/DECISIONS.md` (settled; don't reopen).
+1. Read `docs/agent/STATUS.md` (where things stand) and `docs/agent/DECISIONS.md` (owner and doc rows are settled; don't reopen them. `agent (proposed)` rows await confirmation).
 2. If STATUS names an active plan, read that plan's `tracker.md`.
 3. Check STATUS against the code and recent git log. If they disagree, the code wins: fix STATUS and say so.
 4. Tell the user in 2-3 lines where things stand and what you'll do next.
@@ -33,6 +33,7 @@ The user's latest words, then the code and git history, then `docs/agent/` files
 | `OPEN-QUESTIONS.md` | Waiting on a human | Add; delete when answered |
 | `plans/<date-slug>/` | spec, plan, tracker for one feature | Tracker: one task `doing` at a time |
 | `research/` | Findings with sources and dates | One file per topic |
+| `security/` | Threat model, review reports, incident plan | Created by `.agentkit/playbooks/security-review.md` |
 
 ## End of every task, or when the chat grows long
 Run `.agentkit/playbooks/handoff.md`: rewrite STATUS, append to LOG, log decisions, update the tracker. The test: a different AI tool in a fresh chat can continue from the files alone. If context is long or you notice drift, hand off and suggest a fresh session.

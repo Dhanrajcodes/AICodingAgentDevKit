@@ -4,7 +4,7 @@ Use when starting or resuming work: a fresh chat, a different AI tool, or after 
 
 1. Read `AGENTS.md` (already loaded in most tools).
 2. Read `docs/agent/STATUS.md`: phase, in progress, next step, blockers.
-3. Read `docs/agent/DECISIONS.md`. Treat every row as settled.
+3. Read `docs/agent/DECISIONS.md`. Rows by `owner` or `doc` are settled. Rows marked `agent (proposed)` are working assumptions: follow them, and confirm with the user when one matters to the task.
 4. If STATUS names an active plan, read its `tracker.md`. Find the `doing` row, or the first `todo` in priority order.
 5. Read the last one or two entries of `docs/agent/LOG.md` only if STATUS doesn't say exactly where work stopped.
 6. Check reality: `git status`, `git log --oneline -10`, and the files STATUS says are in progress. If STATUS and the code disagree, the code wins: fix STATUS and mention it.

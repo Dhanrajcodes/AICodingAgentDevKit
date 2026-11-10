@@ -94,4 +94,34 @@ assert_eq "$code" 2 "exit"
 out=$(sh "$INSTALL" 2>&1); code=$?
 assert_eq "$code" 2 "no args"
 
+CASE=crlf-preserved
+t=$(mktarget crlf2)
+sh "$INSTALL" "$t" >/dev/null 2>&1
+to_crlf "$t/AGENTS.md"
+lines=$(wc -l < "$t/AGENTS.md" | tr -d ' ')
+sh "$INSTALL" "$t" >/dev/null 2>&1
+crs=$(tr -cd '\r' < "$t/AGENTS.md" | wc -c | tr -d ' ')
+assert_eq "$crs" "$lines" "every line keeps CRLF"
+
+CASE=agentkit-is-a-file
+t=$(mktarget filekit)
+printf 'data\n' > "$t/.agentkit"
+out=$(sh "$INSTALL" "$t" 2>&1); code=$?
+assert_eq "$code" 3 "exit"
+assert_eq "$(cat "$t/.agentkit")" "data" "file untouched"
+
+CASE=target-is-kit-payload
+c="$TMP_ROOT/kitcopy"; rm -rf "$c"; mkdir -p "$c"; cp "$INSTALL" "$c/"; cp -R "$ROOT/kit" "$c/kit"
+out=$(sh "$c/install.sh" "$c/kit" 2>&1); code=$?
+assert_eq "$code" 3 "exit"
+assert_file "$c/kit/.agentkit/VERSION"
+out=$(cd "$c/kit" && sh ../install.sh . 2>&1); code=$?
+assert_eq "$code" 3 "relative dot"
+assert_file "$c/kit/.agentkit/INDEX.md"
+
+CASE=extra-arg
+t=$(mktarget extra)
+out=$(sh "$INSTALL" "$t" "$t" 2>&1); code=$?
+assert_eq "$code" 2 "two targets"
+
 summary

@@ -50,5 +50,5 @@ Open only what the task needs. One line per file: what it is and when to read it
 - `templates/AGENTS.md`, `templates/stub.md`: the entry file and tool stubs the installer writes (used by `playbooks/adopt.md`)
 
 ## Tools
-- `doctor.sh` / `doctor.ps1`: checks memory sizes, stale status, stubs, secrets in memory files and unignored `.env` files. Run `sh .agentkit/doctor.sh` or `powershell -File .agentkit/doctor.ps1`.
+- `doctor.sh` / `doctor.ps1`: checks memory sizes, stale status, stubs, secrets in memory files and unignored `.env` files. Run `sh .agentkit/doctor.sh` or `powershell -ExecutionPolicy Bypass -File .agentkit/doctor.ps1`.
 - `VERSION`: installed kit version.
