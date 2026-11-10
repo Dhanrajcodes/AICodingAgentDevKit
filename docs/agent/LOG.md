@@ -33,3 +33,8 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 - Ruling: check labels have no spaces (`stub-claude`, `stub-gemini` instead of `stub CLAUDE.md`) so output is easy to grep. Cost if wrong: label rename.
 - Ruling: default workspace is the folder holding `.agentkit/` (script's parent), not the cwd, so doctor works from any directory. Cost if wrong: none; an explicit path still wins.
 - Ruling: budgets.env is parsed (known keys, digits only), never sourced, so a user file can't run code.
+
+## 2026-11-10: T-09 doctor.ps1
+- Changed: `kit/.agentkit/doctor.ps1`, `tests/test_doctor.ps1`; fix in `install.ps1`; new `update-recreates-stub` case in both install suites.
+- Evidence: `tests/run.ps1` → install.ps1 55/55, doctor.ps1 35/35 (34/35 failed with the script hidden). `tests/run.sh` → kit 99/99, install.sh 55/55, doctor.sh 35/35.
+- Bug found and fixed: PowerShell variables are case-insensitive. `$m` overwrote `$M` in doctor.ps1, and `$tpl` overwrote `$Tpl` in install.ps1, which crashed an update that had to recreate a missing stub. Regression test failed first, then passed. Scanned all `.ps1` files for other case collisions: none.

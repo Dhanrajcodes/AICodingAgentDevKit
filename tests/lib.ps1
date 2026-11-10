@@ -36,6 +36,7 @@ function Read-Text([string]$Path) { return [IO.File]::ReadAllText($Path) }
 function Assert-FileHas([string]$Path, [string]$Needle) { if ((Read-Text $Path).Contains($Needle)) { Ok } else { Bad "$Path lacks '$Needle'" } }
 function Assert-FileLacks([string]$Path, [string]$Needle) { if ((Read-Text $Path).Contains($Needle)) { Bad "$Path has '$Needle'" } else { Ok } }
 function Assert-Same([string]$A, [string]$B) {
+    if (-not (Test-Path -LiteralPath $A) -or -not (Test-Path -LiteralPath $B)) { Bad "missing $A or $B"; return }
     $x = [IO.File]::ReadAllBytes($A); $y = [IO.File]::ReadAllBytes($B)
     if ($x.Length -eq $y.Length -and -not (Compare-Object $x $y -SyncWindow 0)) { Ok } else { Bad "$A differs from $B" }
 }

@@ -13,9 +13,9 @@ Status: `todo`, `doing`, `done`, `blocked (reason)`, `dropped (reason)`
 | T-05 | Templates and seeds | done | cc8741b |
 | T-06 | install.sh + tests | done | 4667f09 |
 | T-07 | install.ps1 + tests | done | 40b8ede |
-| T-08 | doctor.sh + tests | done | (this) |
-| T-09 | doctor.ps1 + tests | doing | |
-| T-10 | INSTALL.md | todo | |
+| T-08 | doctor.sh + tests | done | 8575e39 |
+| T-09 | doctor.ps1 + tests | done | (this) |
+| T-10 | INSTALL.md | doing | |
 | T-11 | CI | todo | |
 | T-12 | Public docs | todo | |
 | T-13 | Example workspace | todo | |

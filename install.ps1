@@ -80,9 +80,9 @@ if (-not (Test-Path -LiteralPath $A)) {
     $m = Find-Markers $cur.Lines
     if ($m) {
         if (-not $DryRun) {
-            $tpl = Split-Lines ([IO.File]::ReadAllText($TplAgents))
-            $tm = Find-Markers $tpl.Lines
-            $block = $tpl.Lines[$tm[0]..$tm[1]]
+            $tplText = Split-Lines ([IO.File]::ReadAllText($TplAgents))
+            $tm = Find-Markers $tplText.Lines
+            $block = $tplText.Lines[$tm[0]..$tm[1]]
             $before = if ($m[0] -gt 0) { $cur.Lines[0..($m[0] - 1)] } else { @() }
             $after = if ($m[1] -lt $cur.Lines.Count - 1) { $cur.Lines[($m[1] + 1)..($cur.Lines.Count - 1)] } else { @() }
             $nl = if ($cur.Crlf) { "`r`n" } else { "`n" }

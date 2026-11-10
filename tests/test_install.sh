@@ -44,6 +44,13 @@ assert_file_lacks "$t/AGENTS.md" "OLD TEXT"
 assert_file_has "$t/AGENTS.md" "PROJECT-NOTE"
 n=$(grep -c 'agentkit:start' "$t/AGENTS.md"); assert_eq "$n" 1 "one start marker"
 
+CASE=update-recreates-stub
+rm "$t/GEMINI.md"
+out=$(sh "$INSTALL" "$t" 2>&1); code=$?
+assert_eq "$code" 0 "exit"
+assert_contains "$out" "created GEMINI.md" "stub recreated on update"
+assert_same "$t/GEMINI.md" "$TPL/stub.md"
+
 CASE=crlf
 t=$(mktarget crlf)
 sh "$INSTALL" "$t" >/dev/null 2>&1

@@ -43,6 +43,13 @@ Assert-FileLacks $a 'OLD TEXT'
 Assert-FileHas $a 'PROJECT-NOTE'
 Assert-Eq ([regex]::Matches((Read-Text $a), 'agentkit:start').Count) 1 'one start marker'
 
+$Case = 'update-recreates-stub'
+Remove-Item (Join-Path $t 'GEMINI.md')
+$r = Invoke-Script $Install @('-Target', $t)
+Assert-Eq $r.Code 0 'exit'
+Assert-Contains $r.Out 'created GEMINI.md' 'stub recreated on update'
+Assert-Same (Join-Path $t 'GEMINI.md') (Join-Path $Tpl 'stub.md')
+
 $Case = 'crlf'
 $t = New-Target 'crlf'
 $null = Invoke-Script $Install @('-Target', $t)
