@@ -42,13 +42,14 @@ jobs:
       fail-fast: false
       matrix:
         shell: [powershell, pwsh]
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
     steps:
       - uses: actions/checkout@v4
       - name: Run test suites
-        shell: ${{ matrix.shell }}
         run: ./tests/run.ps1
       - name: Fresh install passes doctor
-        shell: ${{ matrix.shell }}
         run: |
           $ws = Join-Path $env:RUNNER_TEMP 'fresh workspace'
           New-Item -ItemType Directory -Path $ws -Force | Out-Null
