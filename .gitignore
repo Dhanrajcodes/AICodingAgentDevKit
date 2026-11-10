@@ -1,0 +1,16 @@
+# OS and editor
+.DS_Store
+Thumbs.db
+._*
+.vscode/
+.idea/
+
+# Local scratch
+*.log
+.superpowers/
+tests/.tmp/
+
+# Never commit secrets
+.env
+.env.*
+!.env.example
