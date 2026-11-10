@@ -8,9 +8,9 @@ Status: `todo`, `doing`, `done`, `blocked (reason)`, `dropped (reason)`
 |---|---|---|---|
 | T-01 | Repo foundation | done | ea81209 |
 | T-02 | Entry points and index | done | 10c9c33 |
-| T-03 | Rules | done | (this) |
-| T-04 | Playbooks | doing | |
-| T-05 | Templates and seeds | todo | |
+| T-03 | Rules | done | 12726c6 |
+| T-04 | Playbooks | done | (this) |
+| T-05 | Templates and seeds | doing | |
 | T-06 | install.sh + tests | todo | |
 | T-07 | install.ps1 + tests | todo | |
 | T-08 | doctor.sh + tests | todo | |

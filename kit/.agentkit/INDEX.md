@@ -29,6 +29,7 @@ Open only what the task needs. One line per file: what it is and when to read it
 ## Templates (shapes for memory files)
 - `templates/status.md`, `templates/log-entry.md`, `templates/decisions-index.md`, `templates/decision.md`, `templates/open-questions.md`
 - `templates/spec.md`, `templates/plan.md`, `templates/tracker.md`, `templates/bugfix.md`, `templates/research-note.md`
+- `templates/AGENTS.md`, `templates/stub.md`: the entry file and tool stubs the installer writes (used by `playbooks/adopt.md`)
 
 ## Tools
 - `doctor.sh` / `doctor.ps1`: checks memory sizes, stale status, stubs and secrets. Run `sh .agentkit/doctor.sh` or `powershell -File .agentkit/doctor.ps1`.
