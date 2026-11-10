@@ -97,5 +97,19 @@ done
 if [ -z "$hits" ]; then ok no-secrets
 else warn no-secrets "possible secret in:$hits (remove it and rotate the key)"; fi
 
+# env-ignored: .env files inside a git repo must be git-ignored (templates like .env.example are fine)
+unignored=""
+if command -v git >/dev/null 2>&1; then
+  unignored=$(find "$W" -maxdepth 3 \( -name node_modules -o -name .git -o -name .venv \) -prune -o \
+      -type f -name '.env*' -print 2>/dev/null | while IFS= read -r f; do
+    case "${f##*/}" in .env.example|.env.sample|.env.template|.env.dist) continue ;; esac
+    d=$(dirname "$f")
+    git -C "$d" rev-parse --is-inside-work-tree >/dev/null 2>&1 || continue
+    git -C "$d" check-ignore -q "$f" 2>/dev/null || printf ' %s' "${f#"$W/"}"
+  done)
+fi
+if [ -z "$unignored" ]; then ok env-ignored
+else warn env-ignored "not git-ignored, could be committed:$unignored (add to .gitignore)"; fi
+
 echo "doctor: $WARN warning(s)"
 [ "$WARN" -eq 0 ]

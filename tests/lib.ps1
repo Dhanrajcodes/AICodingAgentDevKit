@@ -1,7 +1,7 @@
 # Shared helpers for the PowerShell test suites. Dot-sourced. ASCII only.
 $ErrorActionPreference = 'Stop'
 $script:Root = Split-Path -Parent $PSScriptRoot
-$script:TmpRoot = Join-Path $script:Root 'tests\.tmp-ps'
+$script:TmpRoot = Join-Path ([IO.Path]::GetTempPath()) 'agentkit-tests-ps'
 $script:PsExe = (Get-Process -Id $PID).Path
 $script:Pass = 0
 $script:Fail = 0

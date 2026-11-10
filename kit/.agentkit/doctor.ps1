@@ -112,5 +112,32 @@ foreach ($d in @($M, (Join-Path $W '.agentkit.local'))) {
 if (-not $hits) { Ok 'no-secrets' }
 else { Warn 'no-secrets' "possible secret in:$hits (remove it and rotate the key)" }
 
+# env-ignored: .env files inside a git repo must be git-ignored (templates like .env.example are fine)
+$unignored = ''
+if (Get-Command git -ErrorAction SilentlyContinue) {
+    $skipDirs = @('node_modules', '.git', '.venv')
+    $templates = @('.env.example', '.env.sample', '.env.template', '.env.dist')
+    $queue = New-Object System.Collections.Queue
+    $queue.Enqueue(@($W, 0))
+    while ($queue.Count -gt 0) {
+        $item = $queue.Dequeue(); $dir = $item[0]; $depth = $item[1]
+        foreach ($e in Get-ChildItem -LiteralPath $dir -Force -ErrorAction SilentlyContinue) {
+            if ($e.PSIsContainer) {
+                if ($depth -lt 2 -and $skipDirs -notcontains $e.Name) { $queue.Enqueue(@($e.FullName, ($depth + 1))) }
+            } elseif ($e.Name -like '.env*' -and $templates -notcontains $e.Name) {
+                $ErrorActionPreference = 'Continue'
+                $null = & git -C $e.DirectoryName rev-parse --is-inside-work-tree 2>$null
+                if ($LASTEXITCODE -eq 0) {
+                    $null = & git -C $e.DirectoryName check-ignore -q $e.FullName 2>$null
+                    if ($LASTEXITCODE -ne 0) { $unignored += " $(Get-Rel $e.FullName)" }
+                }
+                $ErrorActionPreference = 'Stop'
+            }
+        }
+    }
+}
+if (-not $unignored) { Ok 'env-ignored' }
+else { Warn 'env-ignored' "not git-ignored, could be committed:$unignored (add to .gitignore)" }
+
 Write-Output "doctor: $($script:Warn) warning(s)"
 if ($script:Warn -gt 0) { exit 1 } else { exit 0 }

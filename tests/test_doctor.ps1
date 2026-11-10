@@ -18,7 +18,7 @@ function Set-StatusDate([string]$Path, [string]$Date) {
 }
 
 $Labels = 'kit-installed', 'kit-markers', 'stub-claude', 'stub-gemini', 'ring0-size', 'agents-lines',
-    'status-lines', 'decisions-lines', 'log-size', 'status-fresh', 'tracker-single-doing', 'no-secrets'
+    'status-lines', 'decisions-lines', 'log-size', 'status-fresh', 'tracker-single-doing', 'no-secrets', 'env-ignored'
 
 $Case = 'clean'
 $t = New-Fresh 'clean ws'
@@ -100,5 +100,26 @@ $t = New-Fresh 'k11'; Add-Text (Join-Path $t 'docs\agent\STATUS.md') "key sk-abc
 Assert-Contains $r.Out 'warn no-secrets' 'label'
 Assert-Contains $r.Out 'STATUS.md' 'names the file'
 if ($r.Out.Contains('sk-abcdefghij')) { Bad 'printed the secret' } else { Ok }
+
+$Case = 'env-ignored'
+$t = New-Fresh 'envtest ws'
+& git -C $t init -q
+Write-Text (Join-Path $t '.env') "SECRET=1`n"
+Write-Text (Join-Path $t '.env.example') "X=`n"
+$r = Invoke-Doctor $t
+Assert-Contains $r.Out 'warn env-ignored' 'unignored .env'
+if ($r.Out.Contains('.env.example')) { Bad 'example files are fine' } else { Ok }
+Write-Text (Join-Path $t '.gitignore') ".env`n"
+$r = Invoke-Doctor $t
+Assert-Contains $r.Out 'ok   env-ignored' 'ignored .env'
+New-Item -ItemType Directory -Path (Join-Path $t 'app') | Out-Null
+Write-Text (Join-Path $t 'app\.env.local') "K=1`n"
+$r = Invoke-Doctor $t
+Assert-Contains $r.Out 'warn env-ignored' 'nested unignored'
+Assert-Contains $r.Out 'app/.env.local' 'names nested file'
+$t = New-Fresh 'envnogit'
+Write-Text (Join-Path $t '.env') "K=1`n"
+$r = Invoke-Doctor $t
+Assert-Contains $r.Out 'ok   env-ignored' 'not a git repo'
 
 if (-not (Show-Summary 'doctor.ps1')) { exit 1 }

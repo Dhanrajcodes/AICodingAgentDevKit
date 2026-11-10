@@ -1,7 +1,7 @@
 # Shared helpers for the bash test suites. Sourced, not executed.
 
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-TMP_ROOT="$ROOT/tests/.tmp"
+TMP_ROOT="${TMPDIR:-/tmp}/agentkit-tests"
 PASS=0
 FAIL=0
 

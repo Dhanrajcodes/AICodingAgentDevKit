@@ -6,5 +6,5 @@ for suite in test_kit.sh test_install.sh test_doctor.sh; do
   [ -f "$suite" ] || continue
   bash "$suite" || status=1
 done
-rm -rf .tmp
+rm -rf "${TMPDIR:-/tmp}/agentkit-tests"
 exit $status

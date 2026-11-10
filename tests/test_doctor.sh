@@ -11,7 +11,7 @@ fresh() { # fresh <name> -> installed workspace path
 doc() { out=$(sh "$1/.agentkit/doctor.sh" "${2:-$1}" 2>&1); code=$?; }
 lines() { i=0; while [ $i -lt "$2" ]; do echo "line $i"; i=$((i + 1)); done >> "$1"; }
 
-LABELS="kit-installed kit-markers stub-claude stub-gemini ring0-size agents-lines status-lines decisions-lines log-size status-fresh tracker-single-doing no-secrets"
+LABELS="kit-installed kit-markers stub-claude stub-gemini ring0-size agents-lines status-lines decisions-lines log-size status-fresh tracker-single-doing no-secrets env-ignored"
 
 CASE=clean
 t=$(fresh "clean ws")
@@ -88,5 +88,19 @@ t=$(fresh k11); printf 'key sk-abcdefghijklmnopqrstuvwx1234\n' >> "$t/docs/agent
 assert_contains "$out" "warn no-secrets" "label"
 assert_contains "$out" "STATUS.md" "names the file"
 assert_lacks "$out" "sk-abcdefghij" "never prints the secret"
+
+CASE=env-ignored
+t=$(fresh "envtest ws"); git -C "$t" init -q
+printf 'SECRET=1\n' > "$t/.env"; printf 'X=\n' > "$t/.env.example"
+doc "$t"
+assert_contains "$out" "warn env-ignored" "unignored .env"
+assert_lacks "$out" ".env.example" "example files are fine"
+printf '.env\n' > "$t/.gitignore"; doc "$t"
+assert_contains "$out" "ok   env-ignored" "ignored .env"
+mkdir -p "$t/app"; printf 'K=1\n' > "$t/app/.env.local"; doc "$t"
+assert_contains "$out" "warn env-ignored" "nested unignored"
+assert_contains "$out" "app/.env.local" "names nested file"
+t=$(fresh envnogit); printf 'K=1\n' > "$t/.env"; doc "$t"
+assert_contains "$out" "ok   env-ignored" "not a git repo: cannot be committed"
 
 summary

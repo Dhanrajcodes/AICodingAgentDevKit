@@ -7,6 +7,6 @@ foreach ($suite in 'test_install.ps1', 'test_doctor.ps1') {
     & $exe -NoProfile -ExecutionPolicy Bypass -File $p
     if ($LASTEXITCODE -ne 0) { $status = 1 }
 }
-$tmp = Join-Path $PSScriptRoot '.tmp-ps'
+$tmp = Join-Path ([IO.Path]::GetTempPath()) 'agentkit-tests-ps'
 if (Test-Path -LiteralPath $tmp) { Remove-Item -LiteralPath $tmp -Recurse -Force }
 exit $status
