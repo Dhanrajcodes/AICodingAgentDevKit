@@ -74,3 +74,6 @@ Append-only. Newest at the bottom. Entry: `## YYYY-MM-DD: title`, then what was 
 ## 2026-11-10: first CI run on the PR
 - The workflow file was rejected: step-level `shell: ${{ matrix.shell }}` isn't allowed; moved to the job's `defaults.run.shell`.
 - macOS failed: `/bin/sh` there is bash 3.2, which can't parse a `case` pattern's `)` inside `$( ... )`. doctor.sh died at the env-ignored check. Fixed with the POSIX leading-paren form `(pattern)`. ShellCheck, Ubuntu, Windows PowerShell 5.1 and pwsh 7 passed on the first run.
+
+## 2026-11-10: release
+- CI green on PR #1 (run 42866323424): all 5 jobs. T-14 done; merge is the owner's.
